@@ -1,0 +1,20 @@
+name: musak-annotations
+version: 0.1
+synopsis: Analysis of vector drawings
+homepage: http://www.transforming-musicology.org/tools/metaMuSAK/
+author: Richard Lewis
+license: GPL
+build-type: Simple
+cabal-version: >= 1.8
+
+library
+  build-depends: base, containers, cassava, old-locale, time, bytestring, vector
+  exposed-modules: MuSAK.Annotations, MuSAK.Annotations.Types
+  hs-source-dirs: src
+  ghc-options: -Wall
+
+executable test-types
+  build-depends: base, cassava, time, bytestring, musak-annotations, vector
+  hs-source-dirs: tests
+  main-is: TestTypes.hs
+  ghc-options: -Wall

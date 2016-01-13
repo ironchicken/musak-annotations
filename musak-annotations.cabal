@@ -13,6 +13,12 @@ library
   hs-source-dirs: src
   ghc-options: -Wall
 
+executable musak-annot
+  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector
+  hs-source-dirs: src
+  main-is: Main.hs
+  ghc-options: -Wall
+
 executable test-types
   build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector
   hs-source-dirs: tests

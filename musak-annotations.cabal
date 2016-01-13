@@ -9,7 +9,7 @@ cabal-version: >= 1.8
 
 library
   build-depends: base, containers, cassava, time, bytestring, vector
-  exposed-modules: MuSAK.Annotations, MuSAK.Annotations.Types
+  exposed-modules: MuSAK.Annotations, MuSAK.Annotations.Types, MuSAK.Annotations.Graph
   hs-source-dirs: src
   ghc-options: -Wall
 

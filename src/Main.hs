@@ -9,6 +9,7 @@ import           MuSAK.Annotations.Drawing
 import           MuSAK.Annotations.Segmentation
 import           MuSAK.Annotations.Types
 import           System.Environment (getArgs)
+import           System.FilePath (takeBaseName)
 
 loadPage :: FilePath -> IO Page
 loadPage f = do
@@ -25,4 +26,4 @@ main = do
 
   let (g, _, _) = pageGraph p
 
-  mapM_ (\s -> drawShape s >>= G.savePngFile ((sh_label s) ++ ".png")) (shapes p)
+  mapM_ (\s -> drawShape s >>= G.savePngFile ((takeBaseName (pg_sourceFile p)) ++ "_" ++ (sh_label s) ++ ".png")) (shapes p)

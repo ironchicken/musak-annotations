@@ -5,8 +5,8 @@ import MuSAK.Annotations.Types
 distance :: Point -> Point -> Int
 distance (x1,y1) (x2,y2) = ceiling $ sqrt $ width ** 2 + height ** 2
   where
-    width  = realToFrac $ abs $ x1 - x2
-    height = realToFrac $ abs $ y1 - y2
+    width  = (realToFrac $ abs $ x1 - x2) :: Double
+    height = (realToFrac $ abs $ y1 - y2) :: Double
 
 markLen :: Mark -> Int
 markLen m = distance (start m) (end m)

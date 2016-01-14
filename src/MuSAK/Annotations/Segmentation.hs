@@ -1,6 +1,5 @@
 module MuSAK.Annotations.Segmentation where
 
-import Data.List (groupBy)
 import MuSAK.Annotations.Types
 
 distance :: Point -> Point -> Int
@@ -24,4 +23,13 @@ contiguous :: Mark -> Mark -> Bool
 contiguous a b = not $ separated a b
 
 shapes :: Page -> [Shape]
+groupBy :: (a -> a -> Bool) -> [a] -> [[a]]
+groupBy p xs = reverse $ makeGroups xs [[]]
+  where
+    makeGroups (x:y:rest) acc = if p x y
+                                then makeGroups (y:rest) ((x:(head acc)):(tail acc))
+                                else makeGroups rest ([y]:((x:(head acc)):(tail acc)))
+    makeGroups (y:rest) acc   = (y:(head acc)):(tail acc)
+    makeGroups []       acc   = acc
+
 shapes p = map (\(ms,i) -> Shape { sh_marks = ms, sh_label = "shape" ++ (show i) }) $ zip (groupBy contiguous (pg_marks p)) [0..]

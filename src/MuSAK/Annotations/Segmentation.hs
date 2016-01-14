@@ -18,7 +18,7 @@ gap a b = distance (end a) (start b)
 separated :: Mark -> Mark -> Bool
 separated a b | a `gap` b >= threshold = True
               | otherwise              = False
-  where threshold = 10
+  where threshold = 100
 
 contiguous :: Mark -> Mark -> Bool
 contiguous a b = not $ separated a b

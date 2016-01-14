@@ -1,13 +1,12 @@
 module MuSAK.Annotations.Graph where
 
-import           Data.Graph
-import qualified Data.Vector as DV
-import           MuSAK.Annotations.Types
+import Data.Graph
+import MuSAK.Annotations.Types
 
 pageGraph :: Page -> (Graph, Vertex -> (Point, PointKey, [PointKey]), PointKey -> Maybe Vertex)
 pageGraph pg = graphFromEdges $ concat (edges marks)
   where
-    marks = DV.toList $ pg_marks pg
+    marks = pg_marks pg
     edges (a:b:es) = (marksToEdge pg a (Just b)) : edges (b : es)
     edges (a:es)   = (marksToEdge pg a Nothing) : edges es
     edges []       = []

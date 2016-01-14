@@ -89,13 +89,13 @@ asSeconds (TimeOfDay { todHour = h, todMin = m, todSec = s }) = hs + ms + (realT
     hs = (realToFrac h) / 60.0 / 60.0
     ms = (realToFrac m) / 60.0
 
-data Page = Page { pg_marks :: DV.Vector Mark
+data Page = Page { pg_marks :: [Mark]
                  , pg_sourceFile :: FilePath } deriving (Show)
 
 instance Eq Page where
   (==) (Page { pg_sourceFile = a }) (Page { pg_sourceFile = b }) = a == b
 
-data Shape = Shape { sh_marks :: DV.Vector Mark
+data Shape = Shape { sh_marks :: [Mark]
                    , sh_label :: String } deriving (Show)
 
 instance Eq Shape where

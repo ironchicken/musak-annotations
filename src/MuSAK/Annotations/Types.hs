@@ -14,7 +14,7 @@ import           Data.ByteString (ByteString)
 import           Data.Csv
 import           Data.Time.Format (TimeLocale, defaultTimeLocale, timeFmt, parseTime, formatTime)
 import           Data.Time.LocalTime
-import           Data.Vector as DV
+import qualified Data.Vector as DV
 import qualified Data.ByteString.Char8 as BC
 
 type Point = (Int, Int)
@@ -26,7 +26,7 @@ data Mark = Mark { color  :: !ByteString
                  , startY :: !Int
                  , endX   :: !Int
                  , endY   :: !Int
-                 , time   :: !TimeOfDay } deriving (Show)
+                 , time   :: !TimeOfDay }
 
 instance FromRecord Mark where
   parseRecord v
@@ -48,6 +48,9 @@ instance ToRecord Mark where
                                              , toField eX
                                              , toField eY
                                              , toField t ]
+
+instance Show Mark where
+  show m = (show (start m)) ++ " -> " ++ (show (end m))
 
 start :: Mark -> Point
 start (Mark { startX = x, startY = y }) = (x, y)
@@ -96,7 +99,10 @@ instance Eq Page where
   (==) (Page { pg_sourceFile = a }) (Page { pg_sourceFile = b }) = a == b
 
 data Shape = Shape { sh_marks :: [Mark]
-                   , sh_label :: String } deriving (Show)
+                   , sh_label :: String }
+
+instance Show Shape where
+  show (Shape { sh_marks = ms, sh_label = l }) = "{" ++ l ++ ": " ++ (show $ reverse ms) ++ "}\n"
 
 instance Eq Shape where
   (==) (Shape { sh_marks = a }) (Shape { sh_marks = b }) = undefined

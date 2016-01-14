@@ -3,7 +3,9 @@ module Main where
 import qualified Data.ByteString.Lazy as BL
 import           Data.Csv
 import qualified Data.Vector as V
+import qualified Graphics.GD as G
 import           MuSAK.Annotations.Graph hiding (shapes)
+import           MuSAK.Annotations.Drawing
 import           MuSAK.Annotations.Segmentation
 import           MuSAK.Annotations.Types
 import           System.Environment (getArgs)
@@ -20,9 +22,7 @@ main :: IO ()
 main = do
   (a:_) <- getArgs
   p <- loadPage a
-  putStrLn $ show p
-  let (g, _, _) = pageGraph p
-  putStrLn $ show g
 
-  let s = shapes p
-  putStrLn $ show s
+  let (g, _, _) = pageGraph p
+
+  mapM_ (\s -> drawShape s >>= G.savePngFile ((sh_label s) ++ ".png")) (shapes p)

@@ -24,4 +24,4 @@ contiguous :: Mark -> Mark -> Bool
 contiguous a b = not $ separated a b
 
 shapes :: Page -> [Shape]
-shapes p = map (\ms -> Shape { sh_marks = ms, sh_label = "" }) $ groupBy contiguous (pg_marks p)
+shapes p = map (\(ms,i) -> Shape { sh_marks = ms, sh_label = "shape" ++ (show i) }) $ zip (groupBy contiguous (pg_marks p)) [0..]

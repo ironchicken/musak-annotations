@@ -14,7 +14,7 @@ library
   ghc-options: -Wall
 
 executable musak-annot
-  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, gd, filepath
+  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, gd, filepath, Glob
   hs-source-dirs: src
   main-is: Main.hs
   ghc-options: -Wall

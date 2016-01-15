@@ -6,7 +6,8 @@ module MuSAK.Annotations.Types ( Mark(..)
                                , connectionThreshold
                                , end
                                , start
-                               , weight ) where
+                               , weight
+                               , emptyPage ) where
 
 import           Control.Applicative
 import           Control.Monad
@@ -97,6 +98,9 @@ data Page = Page { pg_marks :: [Mark]
 
 instance Eq Page where
   (==) (Page { pg_sourceFile = a }) (Page { pg_sourceFile = b }) = a == b
+
+emptyPage :: Page -> Bool
+emptyPage (Page { pg_marks = ms }) = null ms
 
 data Shape = Shape { sh_marks :: [Mark]
                    , sh_label :: String }

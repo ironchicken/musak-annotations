@@ -28,12 +28,19 @@ sizeOf s = (max 1 (right - left), max 1 (bottom - top))
 translateToO :: Point -> Point -> Point
 translateToO (x1,y1) (offsX,offsY) = (x1 - offsX, y1 - offsY)
 
-drawMark :: G.Image -> Point -> Mark -> IO ()
-drawMark img off m = G.drawLine (translateToO (start m) off) (translateToO (end m) off) (G.rgb 0 0 255) img
+lineColour :: G.Color
+lineColour = (G.rgb 0 0 255)
 
-drawShape :: Shape -> IO G.Image
-drawShape s = do
+drawMark :: G.Image -> Maybe Point -> Mark -> IO ()
+drawMark img (Just off) m = G.drawLine (translateToO (start m) off) (translateToO (end m) off) lineColour img
+drawMark img Nothing    m = G.drawLine (start m) (end m) lineColour img
+
+drawShape :: G.Image -> Shape -> Maybe Point ->  IO ()
+drawShape img s offs = mapM_ (drawMark img offs) (sh_marks s)
+
+makeShapeImg :: Shape -> IO G.Image
+makeShapeImg s = do
   img <- G.newImage (sizeOf s)
   G.fillImage (G.rgba 0 0 0 127) img
-  mapM_ (drawMark img (offset s)) (sh_marks s)
+  drawShape img s (Just (offset s))
   return img

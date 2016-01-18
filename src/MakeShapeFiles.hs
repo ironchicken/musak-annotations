@@ -26,4 +26,4 @@ main = do
 
     drawAndSaveShape pgName s = do
       let fileName = pgName ++ "_" ++ (sh_label s) ++ ".png"
-      drawShape s >>= G.savePngFile fileName
+      makeShapeImg s >>= G.savePngFile fileName

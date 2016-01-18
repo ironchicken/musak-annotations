@@ -1,25 +1,15 @@
 module Main where
 
 import           Control.Monad (unless)
-import qualified Data.ByteString.Lazy as BL
-import           Data.Csv
-import qualified Data.Vector as V
 import qualified Graphics.GD as G
 import           MuSAK.Annotations.Graph hiding (shapes)
 import           MuSAK.Annotations.Drawing
+import           MuSAK.Annotations.IOUtils (loadPage)
 import           MuSAK.Annotations.Segmentation
 import           MuSAK.Annotations.Types
 import           System.Environment (getArgs)
 import           System.FilePath (takeBaseName)
 import           System.FilePath.Glob (glob)
-
-loadPage :: FilePath -> IO Page
-loadPage f = do
-  csvData <- BL.readFile f
-  case decode NoHeader csvData of
-    Left err    -> error $ "Could not parse " ++ f ++ ": " ++ err
-    Right marks -> return $ Page { pg_marks = V.toList marks
-                                 , pg_sourceFile = f }
 
 main :: IO ()
 main = do

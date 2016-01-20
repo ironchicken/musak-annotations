@@ -10,17 +10,22 @@ This package provides a tool for analysing the annotations produced by the [MuSA
 
         $ sudo apt-get install ghc cabal-install
 
-2. Clone the repository:
+2. Ensure that [`libGD`](http://libgd.github.io/) is installed,
+   including the include files. On Debian and derivatives, try:
+
+        $ sudo apt-get install libgd-dev
+
+3. Clone the repository:
 
         $ git clone git@gitlab.doc.gold.ac.uk:transforming-musicology/musak-shapes.git
 
-3. Create a Cabal sandbox and install the dependencies in it:
+4. Create a Cabal sandbox and install the dependencies in it:
 
         $ cd musak-shapes
         $ cabal sandbox init
         $ cabal install --only-dependencies
 
-4. Build:
+5. Build:
 
         $ cabal build
 

@@ -8,12 +8,14 @@ import           Data.Csv
 import           Data.List (sort)
 import qualified Data.Vector as V
 import           MuSAK.Annotations.Types
-import           System.Directory (getHomeDirectory)
+import           System.Directory (doesFileExist, getHomeDirectory)
 import           System.FilePath (joinPath, splitExtension, (<.>))
 import           System.FilePath.Glob (glob)
 
 loadPage :: FilePath -> IO Page
 loadPage f = do
+  e <- doesFileExist f
+  unless e $ fail $ f ++ " does not exist."
   csvData <- BL.readFile f
   case decode NoHeader csvData of
     Left err    -> error $ "Could not parse " ++ f ++ ": " ++ err

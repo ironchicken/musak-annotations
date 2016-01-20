@@ -1,9 +1,11 @@
 module MuSAK.Annotations.Drawing where
 
+import           Control.Monad (unless)
 import           Data.List (minimum, maximum)
 import qualified Graphics.GD as G
 import           MuSAK.Annotations.Segmentation
 import           MuSAK.Annotations.Types
+import           System.Directory (doesFileExist)
 
 bounds :: Shape -> (Int, Int, Int, Int)
 bounds s = (left, top, right, bottom)
@@ -43,4 +45,28 @@ makeShapeImg s = do
   img <- G.newImage (sizeOf s)
   G.fillImage (G.rgba 0 0 0 127) img
   drawShape img s (Just (offset s))
+  return img
+
+drawRect :: G.Image -> (Int, Int, Int, Int) -> IO ()
+drawRect img (left, top, right, bottom) = do
+  G.drawLine (left,top) (right,top) lineColour img
+  G.drawLine (right,top) (right,bottom) lineColour img
+  G.drawLine (right,bottom) (left,bottom) lineColour img
+  G.drawLine (left,bottom) (left,top) lineColour img
+
+drawBorder :: G.Image -> Shape -> Maybe Point -> IO ()
+drawBorder img s (Just (x, y)) = do
+  let (left, top, right, bottom) = bounds s
+  drawRect img (left+x, top+y, right+x, bottom+y)
+
+drawBorder img s Nothing = do
+  let (left, top, right, bottom) = bounds s
+  drawRect img (left, top, right, bottom)
+
+makePageImgWithShapes :: FilePath -> Page -> IO G.Image
+makePageImgWithShapes scorePage p = do
+  e <- doesFileExist scorePage
+  unless e $ fail $ scorePage ++ " does not exist."
+  img <- G.loadJpegFile scorePage
+  mapM_ (\s -> do { drawShape img s (Just (0,(-220))); drawBorder img s (Just (0,220)) }) (shapes p)
   return img

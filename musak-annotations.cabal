@@ -14,7 +14,7 @@ library
   ghc-options: -Wall
 
 executable musak-dump-shapes
-  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, gd, filepath, Glob
+  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, gd, filepath, Glob, directory
   hs-source-dirs: src
   main-is: MakeShapeFiles.hs
   ghc-options: -Wall

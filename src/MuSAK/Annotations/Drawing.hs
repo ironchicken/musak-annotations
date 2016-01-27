@@ -1,34 +1,16 @@
 module MuSAK.Annotations.Drawing where
 
 import           Control.Monad (unless)
-import           Data.List (minimum, maximum)
 import qualified Graphics.GD as G
+import           MuSAK.Annotations.Geometry
 import           MuSAK.Annotations.Segmentation
 import           MuSAK.Annotations.Types
 import           System.Directory (doesFileExist)
-
-bounds :: Shape -> (Int, Int, Int, Int)
-bounds s = (left, top, right, bottom)
-  where
-    xs = concat $ map (\m -> [fst (start m), fst (end m)]) (sh_marks s)
-    ys = concat $ map (\m -> [snd (start m), snd (end m)]) (sh_marks s)
-    left   = minimum xs
-    right  = maximum xs
-    top    = minimum ys
-    bottom = maximum ys
-
-offset :: Shape -> Point
-offset s = (left, top)
-  where
-    (left, top, _, _) = bounds s
 
 sizeOf :: Shape -> G.Size
 sizeOf s = (max 1 (right - left), max 1 (bottom - top))
   where
     (left, top, right, bottom) = bounds s
-
-translateToO :: Point -> Point -> Point
-translateToO (x1,y1) (offsX,offsY) = (x1 - offsX, y1 - offsY)
 
 lineColour :: G.Color
 lineColour = (G.rgb 0 0 255)

@@ -1,19 +1,11 @@
 module MuSAK.Annotations.Segmentation where
 
+import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.Types
 import Text.Printf (printf)
 
-distance :: Point -> Point -> Int
-distance (x1,y1) (x2,y2) = ceiling $ sqrt $ width ** 2 + height ** 2
-  where
-    width  = (realToFrac $ abs $ x1 - x2) :: Double
-    height = (realToFrac $ abs $ y1 - y2) :: Double
-
-markLen :: Mark -> Int
-markLen m = distance (start m) (end m)
-
 gap :: Mark -> Mark -> Int
-gap a b = distance (end a) (start b)
+gap a b = distanceInt (end a) (start b)
 
 separated :: Mark -> Mark -> Bool
 separated a b | a `gap` b >= threshold = True

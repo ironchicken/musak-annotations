@@ -1,12 +1,11 @@
 module MuSAK.Annotations.Types ( Mark(..)
                                , Page(..)
                                , Point
+                               , Length
                                , Shape(..)
-                               , Weight
-                               , connectionThreshold
+                               , asSeconds
                                , end
                                , start
-                               , weight
                                , emptyPage ) where
 
 import           Control.Applicative
@@ -19,7 +18,7 @@ import qualified Data.Vector as DV
 import qualified Data.ByteString.Char8 as BC
 
 type Point = (Int, Int)
-type Weight = Double
+type Length = Double
 
 data Mark = Mark { color  :: !ByteString
                  , pen    :: !Int
@@ -58,17 +57,6 @@ start (Mark { startX = x, startY = y }) = (x, y)
 
 end :: Mark -> Point
 end (Mark { endX = x, endY = y }) = (x, y)
-
-connectionThreshold :: Weight
-connectionThreshold = 1.0
-
--- FIXME Should we retain the (end a) == (start b) check? It might
--- turn out that this check fails in the real data.
-weight :: Mark -> Mark -> Weight
--- weight a b | end a == start b = asSeconds (time b) - asSeconds (time a)
---            | otherwise        = connectionThreshold
-weight a b = asTime b - asTime a
-  where asTime = asSeconds . time
 
 locale :: TimeLocale
 locale = defaultTimeLocale { timeFmt = "%H:%M:%S%Q" }

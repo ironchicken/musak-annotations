@@ -2,7 +2,6 @@ module Main where
 
 import           Control.Monad (unless)
 import qualified Graphics.GD as G
-import           MuSAK.Annotations.Graph hiding (shapes)
 import           MuSAK.Annotations.Drawing
 import           MuSAK.Annotations.IOUtils (loadPage)
 import           MuSAK.Annotations.Segmentation

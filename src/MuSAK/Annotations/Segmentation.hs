@@ -1,4 +1,4 @@
-module MuSAK.Annotations.Segmentation where
+module MuSAK.Annotations.Segmentation (shapes) where
 
 import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.Types

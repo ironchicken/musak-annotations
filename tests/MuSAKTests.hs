@@ -2,13 +2,14 @@ module MuSAKTests (tests) where
 
 import Distribution.TestSuite
 
-import MuSAK.Annotations.Types
 import Data.ByteString.Lazy as LB
 import Data.ByteString.Lazy.Char8 as LBC
 import Data.ByteString.Char8 as BC
 import Data.Csv
 import Data.Time.LocalTime
-import Data.Vector as DV
+import Data.Vector as DV hiding ((++))
+import MuSAK.Annotations.Geometry
+import MuSAK.Annotations.Types
 
 testMarkParse :: TestInstance
 testMarkParse = TestInstance {
@@ -30,6 +31,50 @@ testMarkParse = TestInstance {
     decMarks = (decode NoHeader marksCSV) :: Either String (DV.Vector Mark)
     encMarks = encode marks
 
+square10x10 :: Shape
+square10x10 = Shape {
+    sh_label = "square"
+  , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 0, startY = 10,
+                        endX = 0, endY = 0,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 0, startY = 0,
+                        endX = 10, endY = 0,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.1 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 0,
+                        endX = 10, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.2 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 10,
+                        endX = 0, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.3 } }
+               ] }
+
+testBounds = TestInstance {
+    run = return $ Finished $ if bounds square10x10 == (0, 0, 10, 10)
+                              then Pass
+                              else Fail $ "Bounds of 10x10 square wrong: " ++ (show $ bounds square10x10)
+  , name = "10x10 square has bounds (0, 0, 10, 10)"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testBounds
+  }
+
 tests :: IO [Test]
-tests = return [Test testMarkParse
+tests = return [ Test testMarkParse
+               , Test testBounds
                ]

@@ -95,6 +95,3 @@ data Shape = Shape { sh_marks :: [Mark]
 
 instance Show Shape where
   show (Shape { sh_marks = ms, sh_label = l }) = "{" ++ l ++ ": " ++ (show $ reverse ms) ++ "}\n"
-
-instance Eq Shape where
-  (==) (Shape { sh_marks = a }) (Shape { sh_marks = b }) = undefined

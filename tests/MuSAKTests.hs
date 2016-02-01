@@ -9,6 +9,7 @@ import Data.Csv
 import Data.Time.LocalTime
 import Data.Vector as DV hiding ((++), head)
 import MuSAK.Annotations.Geometry
+import MuSAK.Annotations.Similarity.Turning as ST
 import MuSAK.Annotations.Types
 
 testMarkParse :: TestInstance
@@ -33,7 +34,7 @@ testMarkParse = TestInstance {
 
 square10x10 :: Shape
 square10x10 = Shape {
-    sh_label = "square"
+    sh_label = "square10x10"
   , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
                         pen = 2,
                         startX = 0, startY = 10,
@@ -84,8 +85,71 @@ testMarkLenInt = TestInstance {
   , setOption = \_ _ -> Right testBounds
   }
 
+testTurningDistanceEq :: TestInstance
+testTurningDistanceEq = TestInstance {
+    run = return $ Finished $ if ST.distance tRepSquare10x10 tRepSquare10x10 == sq10x10Dist
+                            then Pass
+                            else Fail $ "Distance computed (by turning function measure) between equal shapes is wrong: " ++ (show $ ST.distance tRepSquare10x10 tRepSquare10x10)
+  , name = "10x10 square self distance (by turning function measure) is 0.0"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testBounds
+  }
+  where tRepSquare10x10 = ST.turningRep square10x10
+        sq10x10Dist     = (square10x10, square10x10, 0.0)
+
+square20x20 :: Shape
+square20x20 = Shape {
+    sh_label = "square20x20"
+  , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 30,
+                        endX = 10, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 10,
+                        endX = 30, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.1 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 30, startY = 10,
+                        endX = 30, endY = 30,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.2 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 30, startY = 30,
+                        endX = 10, endY = 30,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.3 } }
+               ] }
+
+testTurningDistanceTrans :: TestInstance
+testTurningDistanceTrans = TestInstance {
+    run = return $ Finished $ if ST.distance tRepSquare10x10 tRepSquare20x20 == sq20x20Dist
+                            then Pass
+                            else Fail $ "Distance computed (by turning function measure) between translated shapes is wrong: " ++ (show $ ST.distance tRepSquare10x10 tRepSquare20x20)
+  , name = "Distance (by turning function measure) between 10x10 and 20x20 squares is 0.0"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testBounds
+  }
+  where tRepSquare10x10 = ST.turningRep square10x10
+        tRepSquare20x20 = ST.turningRep square20x20
+        sq20x20Dist     = (square10x10, square20x20, 0.0)
+
+
 tests :: IO [Test]
 tests = return [ Test testMarkParse
                , Test testBounds
                , Test testMarkLenInt
+               , Test testTurningDistanceEq
+               , Test testTurningDistanceTrans
                ]

@@ -30,4 +30,4 @@ test-suite musak-tests
   test-module: MuSAKTests
   build-depends: base, Cabal >= 1.9.2, containers, cassava, time, bytestring, vector
   hs-source-dirs: src, tests
-  other-modules: MuSAK.Annotations.Types, MuSAK.Annotations.Geometry
+  other-modules: MuSAK.Annotations.Types, MuSAK.Annotations.Geometry, MuSAK.Annotations.Similarity.Turning

@@ -36,3 +36,24 @@ turningAngle s base m1 m2 = a
       | theta - base >= pi = theta - 2 * pi
       | otherwise = theta
     theta = atan2 (markLenScaled s m1) (markLenScaled s m2)
+
+type Distance = (Shape, Shape, Double)
+
+distance :: TurningShape -> TurningShape -> Distance
+distance (TurningShape sa a _) (TurningShape sb b _) = (sa, sb, sqrt $ abs $ (areaUnder a) ^ 2 - (areaUnder b) ^ 2)
+  where
+    areaUnder (x:xs) = area x + areaUnder xs
+    areaUnder []     = 0.0
+    area (Leg a l)   = a * l
+
+instance Eq Shape where
+  (==) a b = dist == 0.0
+    where (_, _, dist) = distance (turningRep a) (turningRep b)
+
+instance Ord Shape where
+  compare a b = compare aTob bToa
+    where
+      aT = (turningRep a)
+      bT = (turningRep b)
+      (_, _, aTob) = distance aT bT
+      (_, _, bToa) = distance bT aT

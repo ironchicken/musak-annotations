@@ -82,7 +82,7 @@ testMarkLenInt = TestInstance {
   , name = "10x10 square first mark has length 10"
   , tags = []
   , options = []
-  , setOption = \_ _ -> Right testBounds
+  , setOption = \_ _ -> Right testMarkLenInt
   }
 
 testTurningDistanceEq :: TestInstance
@@ -93,7 +93,7 @@ testTurningDistanceEq = TestInstance {
   , name = "10x10 square self distance (by turning function measure) is 0.0"
   , tags = []
   , options = []
-  , setOption = \_ _ -> Right testBounds
+  , setOption = \_ _ -> Right testTurningDistanceEq
   }
   where tRepSquare10x10 = ST.turningRep square10x10
         sq10x10Dist     = (square10x10, square10x10, 0.0)
@@ -139,7 +139,7 @@ testTurningDistanceTrans = TestInstance {
   , name = "Distance (by turning function measure) between 10x10 and 20x20 squares is 0.0"
   , tags = []
   , options = []
-  , setOption = \_ _ -> Right testBounds
+  , setOption = \_ _ -> Right testTurningDistanceTrans
   }
   where tRepSquare10x10 = ST.turningRep square10x10
         tRepSquare20x20 = ST.turningRep square20x20

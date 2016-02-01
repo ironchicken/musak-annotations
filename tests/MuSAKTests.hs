@@ -145,6 +145,111 @@ testTurningDistanceTrans = TestInstance {
         tRepSquare20x20 = ST.turningRep square20x20
         sq20x20Dist     = (square10x10, square20x20, 0.0)
 
+triangle10x10 :: Shape
+triangle10x10 = Shape {
+    sh_label = "triangle10x10"
+  , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 10,
+                        endX = 10, endY = 20,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 20,
+                        endX = 20, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.1 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 20, startY = 10,
+                        endX = 10, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.2 } }
+               ] }
+
+triangle20x20 :: Shape
+triangle20x20 = Shape {
+    sh_label = "triangle20x20"
+  , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 10,
+                        endX = 10, endY = 30,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 30,
+                        endX = 30, endY = 30,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.1 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 30, startY = 30,
+                        endX = 10, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.2 } }
+               ] }
+
+testTurningDistanceGrownTriangle :: TestInstance
+testTurningDistanceGrownTriangle = TestInstance {
+    run = return $ Finished $ if distEq 1e-4 (ST.distance tRepTriangle10x10 tRepTriangle20x20) triangDist
+                            then Pass
+                            else Fail $ "Distance computed (by turning function measure) between 10x10 triangle and 20x20 triangle is wrong: " ++ (show $ ST.distance tRepTriangle10x10 tRepTriangle20x20)
+  , name = "Distance (by turning function measure) between 10x10 triangle and 20x20 triangle is 0.0"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testTurningDistanceGrownTriangle
+  }
+  where tRepTriangle10x10 = ST.turningRep triangle10x10
+        tRepTriangle20x20 = ST.turningRep triangle20x20
+        triangDist        = (triangle10x10, triangle20x20, 0.0)
+
+triangle20x5 :: Shape
+triangle20x5 = Shape {
+    sh_label = "triangle20x5"
+  , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 30, startY = 10,
+                        endX = 30, endY = 30,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 30, startY = 30,
+                        endX = 35, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.1 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 35, startY = 10,
+                        endX = 30, endY = 10,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.2 } }
+               ] }
+
+testTurningDistanceTransformedTriangles :: TestInstance
+testTurningDistanceTransformedTriangles = TestInstance {
+    run = return $ Finished $ if distEq 1e-4 (ST.distance tRepTriangle10x10 tRepTriangle20x5) triangDist
+                            then Pass
+                            else Fail $ "Distance computed (by turning function measure) between 10x10 triangle and 20x5 triangle is wrong: " ++ (show $ ST.distance tRepTriangle10x10 tRepTriangle20x5)
+  , name = "Distance (by turning function measure) between 10x10 triangle and 20x5 triangle is 0.4722"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testTurningDistanceTransformedTriangles
+  }
+  where tRepTriangle10x10 = ST.turningRep triangle10x10
+        tRepTriangle20x5  = ST.turningRep triangle20x5
+        triangDist        = (triangle10x10, triangle20x5, 0.4722)
 
 tests :: IO [Test]
 tests = return [ Test testMarkParse
@@ -152,4 +257,6 @@ tests = return [ Test testMarkParse
                , Test testMarkLenInt
                , Test testTurningDistanceEq
                , Test testTurningDistanceTrans
+               , Test testTurningDistanceGrownTriangle
+               , Test testTurningDistanceTransformedTriangles
                ]

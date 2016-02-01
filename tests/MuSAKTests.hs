@@ -2,12 +2,12 @@ module MuSAKTests (tests) where
 
 import Distribution.TestSuite
 
-import Data.ByteString.Lazy as LB
-import Data.ByteString.Lazy.Char8 as LBC
-import Data.ByteString.Char8 as BC
+import Data.ByteString.Lazy as LB hiding (head)
+import Data.ByteString.Lazy.Char8 as LBC hiding (head)
+import Data.ByteString.Char8 as BC hiding (head)
 import Data.Csv
 import Data.Time.LocalTime
-import Data.Vector as DV hiding ((++))
+import Data.Vector as DV hiding ((++), head)
 import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.Types
 
@@ -74,7 +74,18 @@ testBounds = TestInstance {
   , setOption = \_ _ -> Right testBounds
   }
 
+testMarkLenInt = TestInstance {
+  run = return $ Finished $ if markLenInt (head (sh_marks square10x10)) == 10
+                            then Pass
+                            else Fail $ "Length of first mark in 10x10 square wrong: " ++ (show $ markLenInt (head (sh_marks square10x10)))
+  , name = "10x10 square first mark has length 10"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testBounds
+  }
+
 tests :: IO [Test]
 tests = return [ Test testMarkParse
                , Test testBounds
+               , Test testMarkLenInt
                ]

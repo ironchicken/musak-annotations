@@ -5,7 +5,7 @@ homepage: http://www.transforming-musicology.org/tools/metaMuSAK/
 author: Richard Lewis
 license: GPL
 build-type: Simple
-cabal-version: >= 1.8
+cabal-version: >= 1.9.2
 
 library
   build-depends: base, containers, cassava, time, bytestring, vector, gd, filepath, directory, Glob
@@ -25,8 +25,9 @@ executable musak-highlight-shapes
   main-is: HighlightShapes.hs
   ghc-options: -Wall
 
-executable test-types
-  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector
-  hs-source-dirs: tests
-  main-is: TestTypes.hs
-  ghc-options: -Wall
+test-suite musak-tests
+  type: detailed-0.9
+  test-module: MuSAKTests
+  build-depends: base, Cabal >= 1.9.2, containers, cassava, time, bytestring, vector
+  hs-source-dirs: src, tests
+  other-modules: MuSAK.Annotations.Types

@@ -26,7 +26,7 @@ data Mark = Mark { color  :: !ByteString
                  , startY :: !Int
                  , endX   :: !Int
                  , endY   :: !Int
-                 , time   :: !TimeOfDay }
+                 , time   :: !TimeOfDay } deriving (Eq)
 
 instance FromRecord Mark where
   parseRecord v

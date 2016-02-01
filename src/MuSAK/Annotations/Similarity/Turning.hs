@@ -2,12 +2,19 @@ module MuSAK.Annotations.Similarity.Turning where
 
 import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.Types
+import Text.Printf
 
 type Angle = Double
 
-data Leg = Leg Angle Length deriving Show
+data Leg = Leg Angle Length
 
-data TurningShape = TurningShape Shape [Leg] Length deriving Show
+instance Show Leg where
+  show (Leg a l) = "(" ++ (printf "%0.1f" (a * (180 / pi))) ++ ", " ++ (printf "%0.4f" l) ++ ")"
+
+data TurningShape = TurningShape Shape [Leg] Length
+
+instance Show TurningShape where
+  show (TurningShape s ls len) = "TurningShape {" ++ (sh_label s) ++ ": " ++ (show ls) ++ "} = " ++ (printf "%0.4f" len)
 
 markLenScaled :: Shape -> Mark -> Length
 markLenScaled s m = (markLen m) / (perimeter s)

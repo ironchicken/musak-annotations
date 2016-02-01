@@ -87,7 +87,7 @@ testMarkLenInt = TestInstance {
 
 testTurningDistanceEq :: TestInstance
 testTurningDistanceEq = TestInstance {
-    run = return $ Finished $ if ST.distance tRepSquare10x10 tRepSquare10x10 == sq10x10Dist
+    run = return $ Finished $ if distEq 1e-4 (ST.distance tRepSquare10x10 tRepSquare10x10) sq10x10Dist
                             then Pass
                             else Fail $ "Distance computed (by turning function measure) between equal shapes is wrong: " ++ (show $ ST.distance tRepSquare10x10 tRepSquare10x10)
   , name = "10x10 square self distance (by turning function measure) is 0.0"
@@ -133,7 +133,7 @@ square20x20 = Shape {
 
 testTurningDistanceTrans :: TestInstance
 testTurningDistanceTrans = TestInstance {
-    run = return $ Finished $ if ST.distance tRepSquare10x10 tRepSquare20x20 == sq20x20Dist
+    run = return $ Finished $ if distEq 1e-4 (ST.distance tRepSquare10x10 tRepSquare20x20) sq20x20Dist
                             then Pass
                             else Fail $ "Distance computed (by turning function measure) between translated shapes is wrong: " ++ (show $ ST.distance tRepSquare10x10 tRepSquare20x20)
   , name = "Distance (by turning function measure) between 10x10 and 20x20 squares is 0.0"

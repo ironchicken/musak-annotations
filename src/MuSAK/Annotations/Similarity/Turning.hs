@@ -1,6 +1,6 @@
 module MuSAK.Annotations.Similarity.Turning where
 
-import MuSAK.Annotations.Geometry
+import MuSAK.Annotations.Geometry hiding (distance)
 import MuSAK.Annotations.Types
 import Text.Printf
 
@@ -46,6 +46,9 @@ distance (TurningShape sa a _) (TurningShape sb b _) = (sa, sb, sqrt $ abs $ (ar
     areaUnder (x:xs) = area x + areaUnder xs
     areaUnder []     = 0.0
     area (Leg a l)   = a * l
+
+distEq :: Double -> Distance -> Distance -> Bool
+distEq tol (_, _, a) (_, _, b) = tol > abs (a - b)
 
 instance Eq Shape where
   (==) a b = dist == 0.0

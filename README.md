@@ -23,11 +23,13 @@ This package provides a tool for analysing the annotations produced by the [MuSA
 
         $ cd musak-shapes
         $ cabal sandbox init
+        $ cabal configure --enable-tests
         $ cabal install --only-dependencies
 
 5. Build:
 
         $ cabal build
+        $ cabal test
 
 ### Usage
 

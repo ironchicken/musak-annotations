@@ -9,8 +9,11 @@ import Data.Csv
 import Data.Time.LocalTime
 import Data.Vector as DV hiding ((++), head)
 import MuSAK.Annotations.Geometry
+import MuSAK.Annotations.IOUtils (loadPage)
+import MuSAK.Annotations.Segmentation (shapes)
 import MuSAK.Annotations.Similarity.Turning as ST
 import MuSAK.Annotations.Types
+import System.Directory (doesFileExist)
 
 testMarkParse :: TestInstance
 testMarkParse = TestInstance {
@@ -312,6 +315,38 @@ testTurningDistanceRectSq = TestInstance {
         tRepRectangle10x20 = ST.turningRep rectangle10x20
         sqRectDist         = (rectangle10x20, square10x10, 0.3962)
 
+musakAnnotationsPagePath :: FilePath
+musakAnnotationsPagePath = undefined
+
+runTestMuSAKShapesEq :: IO Progress
+runTestMuSAKShapesEq = do
+  prog <- doesFileExist musakAnnotationsPagePath >>= withPageFileExists
+  return prog
+  where
+    withPageFileExists False = return $ Finished $ Error (musakAnnotationsPagePath ++ " does not exist.")
+    withPageFileExists True = do
+      page <- loadPage musakAnnotationsPagePath
+      let ss = (shapes page)
+      return $ cmpFirstShape ss
+
+    cmpFirstShape []                            = Finished $ Error "Empty page"
+    cmpFirstShape ((Shape { sh_marks = [] }):_) = Finished $ Error "Empty shape"
+    cmpFirstShape (shape:_) =
+      Finished $ if distEq 1e-4 (ST.distance tRepShape tRepShape) eqDist
+                 then Pass
+                 else Fail $ "Distance computed (by turning function measure) between equal shapes from MuSAK data-set is wrong: " ++ (show $ ST.distance tRepShape tRepShape)
+      where tRepShape = ST.turningRep shape
+            eqDist    = (shape, shape, 0.0)
+
+testMuSAKShapesEq :: TestInstance
+testMuSAKShapesEq = TestInstance {
+    run = runTestMuSAKShapesEq
+  , name = "Distance (by turning function measure) between equal shapes from MuSAK data-set is 0.0"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testMuSAKShapesEq
+  }
+
 tests :: IO [Test]
 tests = return [ Test testMarkParse
                , Test testBounds
@@ -322,4 +357,5 @@ tests = return [ Test testMarkParse
                , Test testTurningDistanceTransformedTriangles
                , Test testTurningDistanceSqRect
                , Test testTurningDistanceRectSq
+               , Test testMuSAKShapesEq
                ]

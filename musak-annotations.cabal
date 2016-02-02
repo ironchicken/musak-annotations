@@ -28,6 +28,6 @@ executable musak-highlight-shapes
 test-suite musak-tests
   type: detailed-0.9
   test-module: MuSAKTests
-  build-depends: base, Cabal >= 1.9.2, containers, cassava, time, bytestring, vector
+  build-depends: base, Cabal >= 1.9.2, containers, cassava, time, bytestring, vector, directory, filepath, Glob
   hs-source-dirs: src, tests
-  other-modules: MuSAK.Annotations.Types, MuSAK.Annotations.Geometry, MuSAK.Annotations.Similarity.Turning
+  other-modules: MuSAK.Annotations.Types, MuSAK.Annotations.Geometry, MuSAK.Annotations.Similarity.Turning, MuSAK.Annotations.IOUtils, MuSAK.Annotations.Segmentation

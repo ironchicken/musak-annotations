@@ -251,6 +251,67 @@ testTurningDistanceTransformedTriangles = TestInstance {
         tRepTriangle20x5  = ST.turningRep triangle20x5
         triangDist        = (triangle10x10, triangle20x5, 0.4722)
 
+rectangle10x20 :: Shape
+rectangle10x20 = Shape {
+    sh_label = "rectangle10x20"
+  , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 0, startY = 20,
+                        endX = 0, endY = 0,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 0, startY = 0,
+                        endX = 10, endY = 0,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.1 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 0,
+                        endX = 10, endY = 20,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.2 } }
+               , Mark { color = (BC.pack "#00AA20"),
+                        pen = 2,
+                        startX = 10, startY = 20,
+                        endX = 0, endY = 20,
+                        time = TimeOfDay { todHour = 0,
+                                           todMin = 0,
+                                           todSec = 0.3 } }
+               ] }
+
+testTurningDistanceSqRect :: TestInstance
+testTurningDistanceSqRect = TestInstance {
+    run = return $ Finished $ if distEq 1e-4 (ST.distance tRepSquare10x10 tRepRectangle10x20) sqRectDist
+                            then Pass
+                            else Fail $ "Distance computed (by turning function measure) between 10x10 square and 20x10 rectangle is wrong: " ++ (show $ ST.distance tRepSquare10x10 tRepRectangle10x20)
+  , name = "Distance (by turning function measure) between 10x10 square and 20x10 rectangle is 0.3962"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testTurningDistanceSqRect
+  }
+  where tRepSquare10x10    = ST.turningRep square10x10
+        tRepRectangle10x20 = ST.turningRep rectangle10x20
+        sqRectDist         = (square10x10, rectangle10x20, 0.3962)
+
+testTurningDistanceRectSq :: TestInstance
+testTurningDistanceRectSq = TestInstance {
+    run = return $ Finished $ if distEq 1e-4 (ST.distance tRepRectangle10x20 tRepSquare10x10) sqRectDist
+                            then Pass
+                            else Fail $ "Distance computed (by turning function measure) between 20x10 rectangle and 10x10 square is wrong: " ++ (show $ ST.distance tRepRectangle10x20 tRepSquare10x10)
+  , name = "Distance (by turning function measure) between 20x10 rectangle and 10x10 square is 0.3962"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testTurningDistanceRectSq
+  }
+  where tRepSquare10x10    = ST.turningRep square10x10
+        tRepRectangle10x20 = ST.turningRep rectangle10x20
+        sqRectDist         = (rectangle10x20, square10x10, 0.3962)
+
 tests :: IO [Test]
 tests = return [ Test testMarkParse
                , Test testBounds
@@ -259,4 +320,6 @@ tests = return [ Test testMarkParse
                , Test testTurningDistanceTrans
                , Test testTurningDistanceGrownTriangle
                , Test testTurningDistanceTransformedTriangles
+               , Test testTurningDistanceSqRect
+               , Test testTurningDistanceRectSq
                ]

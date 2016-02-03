@@ -50,6 +50,9 @@ distance (TurningShape sa a _) (TurningShape sb b _) = (sa, sb, sqrt $ abs $ (ar
 distEq :: Double -> Distance -> Distance -> Bool
 distEq tol (_, _, a) (_, _, b) = tol > abs (a - b)
 
+distCmp :: Distance -> Distance -> Ordering
+distCmp (_, _, a) (_, _, b) = a `compare` b
+
 instance Eq Shape where
   (==) a b = dist == 0.0
     where (_, _, dist) = distance (turningRep a) (turningRep b)

@@ -2,12 +2,12 @@ module MuSAKTests (tests) where
 
 import Distribution.TestSuite
 
-import Data.ByteString.Lazy as LB hiding (head)
-import Data.ByteString.Lazy.Char8 as LBC hiding (head)
-import Data.ByteString.Char8 as BC hiding (head)
+import Data.ByteString.Lazy as LB hiding (head, filter, putStrLn)
+import Data.ByteString.Lazy.Char8 as LBC hiding (head, filter, putStrLn)
+import Data.ByteString.Char8 as BC hiding (head, filter, putStrLn)
 import Data.Csv
 import Data.Time.LocalTime
-import Data.Vector as DV hiding ((++), head)
+import Data.Vector as DV hiding ((++), head, filter, putStrLn)
 import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.IOUtils (loadPage)
 import MuSAK.Annotations.Segmentation (shapes)
@@ -347,6 +347,47 @@ testMuSAKShapesEq = TestInstance {
   , setOption = \_ _ -> Right testMuSAKShapesEq
   }
 
+runTestMuSAKShapesSimilar :: IO Progress
+runTestMuSAKShapesSimilar = do
+  pg1FPE <- doesFileExist pg1FP
+  pg2FPE <- doesFileExist pg2FP
+  withPageFilesExists (pg1FPE && pg2FPE)
+
+  where
+    withPageFilesExists False = return $ Finished $ Error ("Some files do not exist: " ++ pg1FP ++ ", " ++ pg2FP)
+    withPageFilesExists True = do
+      pg1 <- loadPage pg1FP
+      pg2 <- loadPage pg2FP
+      let ssPg1 = filter (\s -> (sh_label s) == pg1ShapeLabel) (shapes pg1)
+          ssPg2 = filter (\s -> (sh_label s) == pg2ShapeLabel) (shapes pg2)
+      return $ cmpFirstShapes ssPg1 ssPg2
+
+    cmpFirstShapes (sh1:_) (sh2:_) =
+      Finished $ if distCmp (ST.distance tRepsh1 tRepsh2) maxDist == LT
+                 then Pass
+                 else Fail $ "Distance computed (by turning function measure) between " ++ pg1ShapeLabel ++ " and " ++ pg2ShapeLabel ++ " from MuSAK data-set is too large: " ++ (show $ ST.distance tRepsh1 tRepsh2)
+      where
+        tRepsh1 = ST.turningRep sh1
+        tRepsh2 = ST.turningRep sh2
+        maxDist = (sh1, sh2, maximumDistance)
+
+    cmpFirstShapes _ _ = Finished $ Error "Empty page"
+
+    pg1FP           = undefined
+    pg1ShapeLabel   = undefined
+    pg2FP           = undefined
+    pg2ShapeLabel   = undefined
+    maximumDistance = undefined -- 0.12
+
+testMuSAKShapesSimilar :: TestInstance
+testMuSAKShapesSimilar = TestInstance {
+    run = runTestMuSAKShapesSimilar
+  , name = "Distance (by turning function measure) between similar shapes from MuSAK data-set is within threshold"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testMuSAKShapesEq
+  }
+
 tests :: IO [Test]
 tests = return [ Test testMarkParse
                , Test testBounds
@@ -358,4 +399,5 @@ tests = return [ Test testMarkParse
                , Test testTurningDistanceSqRect
                , Test testTurningDistanceRectSq
                , Test testMuSAKShapesEq
+               , Test testMuSAKShapesSimilar
                ]

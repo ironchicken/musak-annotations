@@ -6,7 +6,8 @@ module MuSAK.Annotations.Types ( Mark(..)
                                , asSeconds
                                , end
                                , start
-                               , emptyPage ) where
+                               , emptyPage
+                               , emptyShape ) where
 
 import           Control.Applicative
 import           Control.Monad
@@ -95,3 +96,7 @@ data Shape = Shape { sh_marks :: [Mark]
 
 instance Show Shape where
   show (Shape { sh_marks = ms, sh_label = l }) = "{" ++ l ++ ": " ++ (show $ reverse ms) ++ "}\n"
+
+emptyShape :: Shape -> Bool
+emptyShape (Shape { sh_marks = [] }) = True
+emptyShape _ = False

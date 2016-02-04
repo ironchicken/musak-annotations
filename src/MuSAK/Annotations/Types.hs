@@ -7,7 +7,8 @@ module MuSAK.Annotations.Types ( Mark(..)
                                , end
                                , start
                                , emptyPage
-                               , emptyShape ) where
+                               , emptyShape
+                               , nullShape ) where
 
 import           Control.Applicative
 import           Control.Monad
@@ -100,3 +101,6 @@ instance Show Shape where
 emptyShape :: Shape -> Bool
 emptyShape (Shape { sh_marks = [] }) = True
 emptyShape _ = False
+
+nullShape :: Shape
+nullShape = Shape { sh_label = "", sh_marks = [] }

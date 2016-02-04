@@ -92,8 +92,9 @@ instance Eq Page where
 emptyPage :: Page -> Bool
 emptyPage (Page { pg_marks = ms }) = null ms
 
-data Shape = Shape { sh_marks :: [Mark]
-                   , sh_label :: String }
+data Shape = Shape { sh_marks      :: [Mark]
+                   , sh_label      :: String
+                   , sh_long_label :: String }
 
 instance Show Shape where
   show (Shape { sh_marks = ms, sh_label = l }) = "{" ++ l ++ ": " ++ (show $ reverse ms) ++ "}\n"
@@ -103,4 +104,4 @@ emptyShape (Shape { sh_marks = [] }) = True
 emptyShape _ = False
 
 nullShape :: Shape
-nullShape = Shape { sh_label = "", sh_marks = [] }
+nullShape = Shape { sh_label = "", sh_long_label = "", sh_marks = [] }

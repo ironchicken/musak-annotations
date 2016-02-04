@@ -38,6 +38,7 @@ testMarkParse = TestInstance {
 square10x10 :: Shape
 square10x10 = Shape {
     sh_label = "square10x10"
+  , sh_long_label = "square10x10"
   , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
                         pen = 2,
                         startX = 0, startY = 10,
@@ -104,6 +105,7 @@ testTurningDistanceEq = TestInstance {
 square20x20 :: Shape
 square20x20 = Shape {
     sh_label = "square20x20"
+  , sh_long_label = "square20x20"
   , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
                         pen = 2,
                         startX = 10, startY = 30,
@@ -151,6 +153,7 @@ testTurningDistanceTrans = TestInstance {
 triangle10x10 :: Shape
 triangle10x10 = Shape {
     sh_label = "triangle10x10"
+  , sh_long_label = "triangle10x10"
   , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
                         pen = 2,
                         startX = 10, startY = 10,
@@ -177,6 +180,7 @@ triangle10x10 = Shape {
 triangle20x20 :: Shape
 triangle20x20 = Shape {
     sh_label = "triangle20x20"
+  , sh_long_label = "triangle20x20"
   , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
                         pen = 2,
                         startX = 10, startY = 10,
@@ -217,6 +221,7 @@ testTurningDistanceGrownTriangle = TestInstance {
 triangle20x5 :: Shape
 triangle20x5 = Shape {
     sh_label = "triangle20x5"
+  , sh_long_label = "triangle20x5"
   , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
                         pen = 2,
                         startX = 30, startY = 10,
@@ -257,6 +262,7 @@ testTurningDistanceTransformedTriangles = TestInstance {
 rectangle10x20 :: Shape
 rectangle10x20 = Shape {
     sh_label = "rectangle10x20"
+  , sh_long_label = "rectangle10x20"
   , sh_marks = [ Mark { color = (BC.pack "#00AA20"),
                         pen = 2,
                         startX = 0, startY = 20,
@@ -358,8 +364,8 @@ runTestMuSAKShapesSimilar = do
     withPageFilesExists True = do
       pg1 <- loadPage pg1FP
       pg2 <- loadPage pg2FP
-      let ssPg1 = filter (\s -> (sh_label s) == pg1ShapeLabel) (shapes pg1)
-          ssPg2 = filter (\s -> (sh_label s) == pg2ShapeLabel) (shapes pg2)
+      let ssPg1 = filter (\s -> (sh_long_label s) == pg1ShapeLabel) (shapes pg1)
+          ssPg2 = filter (\s -> (sh_long_label s) == pg2ShapeLabel) (shapes pg2)
       return $ cmpFirstShapes ssPg1 ssPg2
 
     cmpFirstShapes (sh1:_) (sh2:_) =

@@ -25,4 +25,8 @@ groupBy p xs = reverse $ makeGroups xs [[]]
     makeGroups []       acc   = acc
 
 shapes :: Page -> [Shape]
-shapes p = map (\(ms,i) -> Shape { sh_marks = ms, sh_label = "shape" ++ (printf "%02d" i) }) $ zip (groupBy contiguous (pg_marks p)) [(0 :: Int)..]
+shapes p = map (\(ms,i) ->
+                 Shape { sh_marks = ms
+                       , sh_long_label = (pg_sourceFile p) ++ "_shape" ++ (printf "%02d" i)
+                       , sh_label = "shape" ++ (printf "%02d" i) } )
+           $ zip (groupBy contiguous (pg_marks p)) [(0 :: Int)..]

@@ -51,11 +51,14 @@ experiment.
 
 4. To dump all the segmented shapes from every page:
 
-        $ cabal run musak-dump-shapes /path/to/hw-data/Rh/annotations/*.csv
+        $ cabal run musak-annotations -- dump-shapes -a "/path/to/hw-data/Rh/annotations/*.csv"
+
+   If you use globs or multiple file names for the argument, you need
+   to quote them.
 
 5. To draw the shapes on the score pages:
 
-        $ cabal run musak-highlight-shapes -a "/path/to/hw-data/Rh/annotations/*.csv" -s "/path/to/hw-data/Rh/score/*.jpg"
+        $ cabal run musak-annotations -- overlay-shapes -a "/path/to/hw-data/Rh/annotations/*.csv" -s "/path/to/hw-data/Rh/score/*.jpg"
 
    If you use globs or multiple file names for the arguments, you need
    to quote them.
@@ -76,9 +79,19 @@ experiment.
         λ: :m + System.PosixCompat.Files
         λ: sequence_ $ map (\n -> createSymbolicLink ("Rhpage" ++ (show (n+1)) ++ ".csv") ("Rh-" ++ (printf "%04d" n) ++ ".csv")) [1..252]
 
-   And then execute `musak-highlight-shapes` with suitable globs:
+   And then execute `musak-annotations overlay-shapes` with suitable globs:
 
-        $ cabal run musak-highlight-shapes -a "/path/to/hw-data/Rh/annotations/Rh-*.csv" -s "/path/to/hw-data/Rh/score/Rh-*.jpg"
+        $ cabal run musak-annotations -- overlay-shapes -a "/path/to/hw-data/Rh/annotations/Rh-*.csv" -s "/path/to/hw-data/Rh/score/Rh-*.jpg"
+
+The example commands above using `cabal` to call the executable. Once
+built, you can copy the executable from
+`dist/build/musak-annotations/musak-annotations` to somewhere on your
+`PATH` for more convenient (and faster, by avoiding the `cabal` start
+up and build check) usage. If you're calling the executable directly,
+you don't need the bare `--` before the command. There is also a
+`cabal install` command which would put the executable (and Haskell
+library) in some default location in your home directory. However,
+there's no corresponding "uninstall".
 
 ### Future
 

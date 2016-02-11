@@ -1,6 +1,7 @@
 module MuSAK.Annotations.IOUtils ( loadPage
                                  , extendBaseName
-                                 , globExpHome ) where
+                                 , globExpHome
+                                 , parseStringList ) where
 
 import           Control.Monad (unless)
 import qualified Data.ByteString.Lazy as BL
@@ -36,3 +37,6 @@ globExpHome p = do
     fullPath h ('~':'/':s) = joinPath [h, s]
     fullPath h ('~':s)     = joinPath [h, s]
     fullPath _ s           = s
+
+parseStringList :: Monad m => String -> m [String]
+parseStringList = return . words

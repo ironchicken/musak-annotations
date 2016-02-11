@@ -13,22 +13,10 @@ library
   hs-source-dirs: src
   ghc-options: -Wall
 
-executable musak-dump-shapes
-  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, gd, filepath, Glob, directory
-  hs-source-dirs: src
-  main-is: MakeShapeFiles.hs
-  ghc-options: -Wall
-
-executable musak-highlight-shapes
+executable musak-annotations
   build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, gd, filepath, Glob, directory, optparse-applicative
   hs-source-dirs: src
-  main-is: HighlightShapes.hs
-  ghc-options: -Wall
-
-executable musak-cluster-shapes
-  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, filepath, Glob, directory
-  hs-source-dirs: src
-  main-is: ClusterShapes.hs
+  main-is: Main.hs
   ghc-options: -Wall
 
 test-suite musak-tests

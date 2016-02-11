@@ -3,7 +3,7 @@ module Main where
 import qualified Data.Map as Map
 import           MuSAK.Annotations.Clustering.DistanceThreshold
 import           MuSAK.Annotations.IOUtils (loadPage)
-import           MuSAK.Annotations.Segmentation
+import           MuSAK.Annotations.Segmentation.Contiguity
 import           MuSAK.Annotations.Similarity.Turning
 import           MuSAK.Annotations.Types
 import           System.Environment (getArgs)

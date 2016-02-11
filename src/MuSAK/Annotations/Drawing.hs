@@ -3,7 +3,7 @@ module MuSAK.Annotations.Drawing where
 import           Control.Monad (unless)
 import qualified Graphics.GD as G
 import           MuSAK.Annotations.Geometry
-import           MuSAK.Annotations.Segmentation
+import           MuSAK.Annotations.Segmentation.Contiguity
 import           MuSAK.Annotations.Types
 import           System.Directory (doesFileExist)
 

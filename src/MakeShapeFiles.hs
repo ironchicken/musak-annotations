@@ -4,7 +4,7 @@ import           Control.Monad (unless)
 import qualified Graphics.GD as G
 import           MuSAK.Annotations.Drawing
 import           MuSAK.Annotations.IOUtils (loadPage)
-import           MuSAK.Annotations.Segmentation
+import           MuSAK.Annotations.Segmentation.Contiguity
 import           MuSAK.Annotations.Types
 import           System.Environment (getArgs)
 import           System.FilePath (takeBaseName)

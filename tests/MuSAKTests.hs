@@ -10,7 +10,7 @@ import Data.Time.LocalTime
 import Data.Vector as DV hiding ((++), head, filter, putStrLn)
 import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.IOUtils (loadPage)
-import MuSAK.Annotations.Segmentation (shapes)
+import MuSAK.Annotations.Segmentation.Contiguity (shapes)
 import MuSAK.Annotations.Similarity.Turning as ST
 import MuSAK.Annotations.Types
 import System.Directory (doesFileExist)

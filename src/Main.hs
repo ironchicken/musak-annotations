@@ -46,7 +46,11 @@ contiguityThresholdOpt = option (str >>= parseInt)
 {---------------------------- DumpShapes ----------------------------------------}
 
 dumpShapesOpts :: Parser Options
-dumpShapesOpts = DumpShapes <$> (DumpShapesOpts <$> annotationsFilesOpt <*> segmenterOpt <*> contiguityThresholdOpt)
+dumpShapesOpts = DumpShapes <$>
+  ( DumpShapesOpts
+    <$> annotationsFilesOpt
+    <*> segmenterOpt
+    <*> contiguityThresholdOpt )
 
 dumpShapeFiles :: Options -> DumpShapesOpts -> IO ()
 dumpShapeFiles optns o = do
@@ -98,7 +102,11 @@ overlayShapes optns o = do
 {---------------------------- ClusterShapes -------------------------------------}
 
 clusterShapesOpts :: Parser Options
-clusterShapesOpts = GenerateClusters <$> (ClusterShapesOpts <$> annotationsFilesOpt <*> segmenterOpt <*> contiguityThresholdOpt)
+clusterShapesOpts = GenerateClusters <$>
+  ( ClusterShapesOpts
+    <$> annotationsFilesOpt
+    <*> segmenterOpt
+    <*> contiguityThresholdOpt )
 
 clusterShapes :: Options -> ClusterShapesOpts -> IO ()
 clusterShapes optns o = do
@@ -140,8 +148,6 @@ dispatchCommand o = case o of
   (DumpShapes os)       -> dumpShapeFiles o os
   (OverlayShapes os)    -> overlayShapes o os
   (GenerateClusters os) -> clusterShapes o os
-  _                     -> fail "Unrecognised command"
 
 main :: IO ()
 main = execParser opts >>= dispatchCommand
-

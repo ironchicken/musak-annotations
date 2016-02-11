@@ -15,6 +15,12 @@ import MuSAK.Annotations.Similarity.Turning as ST
 import MuSAK.Annotations.Types
 import System.Directory (doesFileExist)
 
+dummyOpts :: MuSAK.Annotations.Types.Options
+dummyOpts = DumpShapes $ DumpShapesOpts {
+    dumpCSVFilesPatterns = []
+  , dumpSegmenter        = "contiguity"
+  , dumpContiguityThresh = 100 }
+
 testMarkParse :: TestInstance
 testMarkParse = TestInstance {
     run = return $ checkMarks decMarks encMarks
@@ -332,7 +338,7 @@ runTestMuSAKShapesEq = do
     withPageFileExists False = return $ Finished $ Error (musakAnnotationsPagePath ++ " does not exist.")
     withPageFileExists True = do
       page <- loadPage musakAnnotationsPagePath
-      let ss = (shapes page)
+      let ss = (shapes page dummyOpts)
       return $ cmpFirstShape ss
 
     cmpFirstShape []                            = Finished $ Error "Empty page"
@@ -364,8 +370,8 @@ runTestMuSAKShapesSimilar = do
     withPageFilesExists True = do
       pg1 <- loadPage pg1FP
       pg2 <- loadPage pg2FP
-      let ssPg1 = filter (\s -> (sh_long_label s) == pg1ShapeLabel) (shapes pg1)
-          ssPg2 = filter (\s -> (sh_long_label s) == pg2ShapeLabel) (shapes pg2)
+      let ssPg1 = filter (\s -> (sh_long_label s) == pg1ShapeLabel) (shapes pg1 dummyOpts)
+          ssPg2 = filter (\s -> (sh_long_label s) == pg2ShapeLabel) (shapes pg2 dummyOpts)
       return $ cmpFirstShapes ssPg1 ssPg2
 
     cmpFirstShapes (sh1:_) (sh2:_) =

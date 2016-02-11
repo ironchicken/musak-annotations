@@ -12,10 +12,6 @@ import           Options.Applicative
 import           System.FilePath (takeBaseName)
 import           Text.Printf
 
-data Options = DumpShapes DumpShapesOpts
-             | OverlayShapes OverlayShapesOpts
-             | GenerateClusters ClusterShapesOpts
-
 annotationsFilesOpt :: Parser [String]
 annotationsFilesOpt = option (str >>= parseStringList)
   (    short 'a'
@@ -37,17 +33,23 @@ segmenterOpt = strOption
     <> value "contiguity"
     <> help "Name of segmentation algorithm used to segment page marks into distinct shapes. Options: 'contiguity'." )
 
+parseInt :: Monad m => String -> m Int
+parseInt = return . read
+
+contiguityThresholdOpt :: Parser Int
+contiguityThresholdOpt = option (str >>= parseInt)
+  (    long "contiguity-threshold"
+    <> metavar "CONTIG-THRESHOLD"
+    <> value 100
+    <> help "Largest permissible gap between two marks in a shape. Gaps larger than this determine shape boundaries." )
+
 {---------------------------- DumpShapes ----------------------------------------}
 
-data DumpShapesOpts = DumpShapesOpts {
-    dumpCSVFilesPatterns :: [String]
-  , dumpSegmenter        :: String } deriving (Eq)
-
 dumpShapesOpts :: Parser Options
-dumpShapesOpts = DumpShapes <$> (DumpShapesOpts <$> annotationsFilesOpt <*> segmenterOpt)
+dumpShapesOpts = DumpShapes <$> (DumpShapesOpts <$> annotationsFilesOpt <*> segmenterOpt <*> contiguityThresholdOpt)
 
-dumpShapeFiles :: DumpShapesOpts -> IO ()
-dumpShapeFiles o = do
+dumpShapeFiles :: Options -> DumpShapesOpts -> IO ()
+dumpShapeFiles optns o = do
   csvFiles <- sequence $ map globExpHome (dumpCSVFilesPatterns o)
 
   mapM_ (drawShapesFromPage (lookup (dumpSegmenter o) segmenters)) (concat csvFiles)
@@ -57,7 +59,7 @@ dumpShapeFiles o = do
     drawShapesFromPage (Just shapesIn) p = do
       page <- loadPage p
       let pageName = takeBaseName (pg_sourceFile page)
-      unless (emptyPage page) $ mapM_ (drawAndSaveShape pageName) (shapesIn page)
+      unless (emptyPage page) $ mapM_ (drawAndSaveShape pageName) (shapesIn page optns)
 
     drawAndSaveShape pgName s = do
       let fileName = pgName ++ "_" ++ (sh_label s) ++ ".png"
@@ -65,20 +67,16 @@ dumpShapeFiles o = do
 
 {---------------------------- OverlayShapes -------------------------------------}
 
-data OverlayShapesOpts = OverlayShapesOpts {
-    overlayCSVFilesPatterns   :: [String]
-  , overlayScorePagesPatterns :: [String]
-  , overlaySegmenter          :: String } deriving (Eq)
-
 overlayShapesOpts :: Parser Options
 overlayShapesOpts = OverlayShapes <$>
   ( OverlayShapesOpts
     <$> annotationsFilesOpt
     <*> scoreFilesOpt
-    <*> segmenterOpt )
+    <*> segmenterOpt
+    <*> contiguityThresholdOpt )
 
-overlayShapes :: OverlayShapesOpts -> IO ()
-overlayShapes o = do
+overlayShapes :: Options -> OverlayShapesOpts -> IO ()
+overlayShapes optns o = do
   csvFiles   <- sequence $ map globExpHome (overlayCSVFilesPatterns o)
   scorePages <- sequence $ map globExpHome (overlayScorePagesPatterns o)
 
@@ -92,22 +90,18 @@ overlayShapes o = do
       let newFileName = extendBaseName scorePage "_withShapes"
       putStrLn $ "(" ++ scorePage ++ ", " ++ annots ++ ") -> " ++ newFileName
       unless (emptyPage page) $ do
-        img <- makePageImgWithShapes shapesIn scorePage page
+        img <- makePageImgWithShapes shapesIn scorePage page optns
         G.saveJpegFile quality newFileName img
 
     quality = 95
 
 {---------------------------- ClusterShapes -------------------------------------}
 
-data ClusterShapesOpts = ClusterShapesOpts {
-    clusterCSVFilesPatterns :: [String]
-  , clusterSegmenter        :: String } deriving (Eq)
-
 clusterShapesOpts :: Parser Options
-clusterShapesOpts = GenerateClusters <$> (ClusterShapesOpts <$> annotationsFilesOpt <*> segmenterOpt)
+clusterShapesOpts = GenerateClusters <$> (ClusterShapesOpts <$> annotationsFilesOpt <*> segmenterOpt <*> contiguityThresholdOpt)
 
-clusterShapes :: ClusterShapesOpts -> IO ()
-clusterShapes o = do
+clusterShapes :: Options -> ClusterShapesOpts -> IO ()
+clusterShapes optns o = do
   csvFiles   <- sequence $ map globExpHome (clusterCSVFilesPatterns o)
 
   allShapes <- mapM (collectShapesFromPage (lookup (clusterSegmenter o) segmenters)) (concat csvFiles)
@@ -119,7 +113,7 @@ clusterShapes o = do
     collectShapesFromPage Nothing _       = fail "Unkown segmenter"
     collectShapesFromPage (Just shapesIn) p = do
       page <- loadPage p
-      return $ shapesIn page
+      return $ shapesIn page optns
 
     showCluster s ds = s ++ (foldl showDistance "" ds)
     showDistance t (_, s, d) = t ++ ", " ++ (sh_long_label s) ++ " (" ++ (printf "%0.4f" d) ++ ")"
@@ -143,9 +137,9 @@ opts = info ( helper <*> config )
 
 dispatchCommand :: Options -> IO ()
 dispatchCommand o = case o of
-  (DumpShapes os)       -> dumpShapeFiles os
-  (OverlayShapes os)    -> overlayShapes os
-  (GenerateClusters os) -> clusterShapes os
+  (DumpShapes os)       -> dumpShapeFiles o os
+  (OverlayShapes os)    -> overlayShapes o os
+  (GenerateClusters os) -> clusterShapes o os
   _                     -> fail "Unrecognised command"
 
 main :: IO ()

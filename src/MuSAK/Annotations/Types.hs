@@ -8,7 +8,12 @@ module MuSAK.Annotations.Types ( Mark(..)
                                , start
                                , emptyPage
                                , emptyShape
-                               , nullShape ) where
+                               , nullShape
+                               , Options(..)
+                               , DumpShapesOpts(..)
+                               , OverlayShapesOpts(..)
+                               , ClusterShapesOpts(..)
+                               , contiguityThreshold ) where
 
 import           Control.Applicative
 import           Control.Monad
@@ -105,3 +110,28 @@ emptyShape _ = False
 
 nullShape :: Shape
 nullShape = Shape { sh_label = "", sh_long_label = "", sh_marks = [] }
+
+data Options = DumpShapes DumpShapesOpts
+             | OverlayShapes OverlayShapesOpts
+             | GenerateClusters ClusterShapesOpts
+
+data DumpShapesOpts = DumpShapesOpts {
+    dumpCSVFilesPatterns :: [String]
+  , dumpSegmenter        :: String
+  , dumpContiguityThresh :: Int } deriving (Eq)
+
+data OverlayShapesOpts = OverlayShapesOpts {
+    overlayCSVFilesPatterns   :: [String]
+  , overlayScorePagesPatterns :: [String]
+  , overlaySegmenter          :: String
+  , overlayContiguityThresh   :: Int } deriving (Eq)
+
+data ClusterShapesOpts = ClusterShapesOpts {
+    clusterCSVFilesPatterns :: [String]
+  , clusterSegmenter        :: String
+  , clusterContiguityThresh :: Int } deriving (Eq)
+
+contiguityThreshold :: Options -> Int
+contiguityThreshold (DumpShapes os)       = dumpContiguityThresh os
+contiguityThreshold (OverlayShapes os)    = overlayContiguityThresh os
+contiguityThreshold (GenerateClusters os) = clusterContiguityThresh os

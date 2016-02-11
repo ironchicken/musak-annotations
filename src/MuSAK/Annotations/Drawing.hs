@@ -45,10 +45,10 @@ drawBorder img s Nothing = do
   let (left, top, right, bottom) = bounds s
   drawRect img (left, top, right, bottom)
 
-makePageImgWithShapes :: Segmenter -> FilePath -> Page -> IO G.Image
-makePageImgWithShapes shapesIn scorePage p = do
+makePageImgWithShapes :: Segmenter -> FilePath -> Page -> Options -> IO G.Image
+makePageImgWithShapes shapesIn scorePage p opts = do
   e <- doesFileExist scorePage
   unless e $ fail $ scorePage ++ " does not exist."
   img <- G.loadJpegFile scorePage
-  mapM_ (\s -> do { drawShape img s (Just (0,(-220))); drawBorder img s (Just (0,220)) }) (shapesIn p)
+  mapM_ (\s -> do { drawShape img s (Just (0,(-220))); drawBorder img s (Just (0,220)) }) (shapesIn p opts)
   return img

@@ -7,13 +7,12 @@ import Text.Printf (printf)
 gap :: Mark -> Mark -> Int
 gap a b = distanceInt (end a) (start b)
 
-separated :: Mark -> Mark -> Bool
-separated a b | a `gap` b >= threshold = True
-              | otherwise              = False
-  where threshold = 100
+separated :: Int -> Mark -> Mark -> Bool
+separated threshold a b | a `gap` b >= threshold = True
+                        | otherwise              = False
 
-contiguous :: Mark -> Mark -> Bool
-contiguous a b = not $ separated a b
+contiguous :: Int -> Mark -> Mark -> Bool
+contiguous threshold a b = not $ separated threshold a b
 
 groupBy :: (a -> a -> Bool) -> [a] -> [[a]]
 groupBy p xs = reverse $ makeGroups xs [[]]
@@ -24,9 +23,10 @@ groupBy p xs = reverse $ makeGroups xs [[]]
     makeGroups (y:rest) acc   = (y:(head acc)):(tail acc)
     makeGroups []       acc   = acc
 
-shapes :: Page -> [Shape]
-shapes p = map (\(ms,i) ->
-                 Shape { sh_marks = ms
-                       , sh_long_label = (pg_sourceFile p) ++ "_shape" ++ (printf "%02d" i)
-                       , sh_label = "shape" ++ (printf "%02d" i) } )
-           $ zip (groupBy contiguous (pg_marks p)) [(0 :: Int)..]
+shapes :: Page -> Options -> [Shape]
+shapes p opts =
+  map (\(ms,i) ->
+        Shape { sh_marks = ms
+              , sh_long_label = (pg_sourceFile p) ++ "_shape" ++ (printf "%02d" i)
+              , sh_label = "shape" ++ (printf "%02d" i) } )
+  $ zip (groupBy (contiguous (contiguityThreshold opts)) (pg_marks p)) [(0 :: Int)..]

@@ -6,7 +6,7 @@ import qualified Data.Map as Map
 import           MuSAK.Annotations.Clustering.DistanceThreshold
 import           MuSAK.Annotations.Drawing
 import           MuSAK.Annotations.IOUtils (loadPage, extendBaseName, globExpHome, parseStringList)
-import           MuSAK.Annotations.Segmentation.Contiguity
+import           MuSAK.Annotations.Segmentation (segmenters)
 import           MuSAK.Annotations.Types
 import           Options.Applicative
 import           System.FilePath (takeBaseName)
@@ -16,34 +16,48 @@ data Options = DumpShapes DumpShapesOpts
              | OverlayShapes OverlayShapesOpts
              | GenerateClusters ClusterShapesOpts
 
+annotationsFilesOpt :: Parser [String]
+annotationsFilesOpt = option (str >>= parseStringList)
+  (    short 'a'
+    <> metavar "\"FILE...\""
+    <> long "annotations"
+    <> help "Quoted list of annotations files or patterns." )
+
+scoreFilesOpt :: Parser [String]
+scoreFilesOpt = option (str >>= parseStringList)
+  (    short 's'
+    <> metavar "\"FILE...\""
+    <> long "scores"
+    <> help "Quoted list of score image files or patterns." )
+
+segmenterOpt :: Parser String
+segmenterOpt = strOption
+  (    long "segmenter"
+    <> metavar "SEGMENTER"
+    <> value "contiguity"
+    <> help "Name of segmentation algorithm used to segment page marks into distinct shapes. Options: 'contiguity'." )
+
 {---------------------------- DumpShapes ----------------------------------------}
 
 data DumpShapesOpts = DumpShapesOpts {
-  dumpCSVFilesPatterns :: [String] } deriving (Eq)
+    dumpCSVFilesPatterns :: [String]
+  , dumpSegmenter        :: String } deriving (Eq)
 
 dumpShapesOpts :: Parser Options
-dumpShapesOpts =
-  DumpShapes
-  <$>
-  DumpShapesOpts
-  <$>
-  option (str >>= parseStringList)
-      (    short 'a'
-        <> metavar "\"FILE...\""
-        <> long "annotations"
-        <> help "Quoted list of annotations files or patterns." )
+dumpShapesOpts = DumpShapes <$> (DumpShapesOpts <$> annotationsFilesOpt <*> segmenterOpt)
 
 dumpShapeFiles :: DumpShapesOpts -> IO ()
 dumpShapeFiles o = do
   csvFiles <- sequence $ map globExpHome (dumpCSVFilesPatterns o)
 
-  mapM_ drawShapesFromPage (concat csvFiles)
+  mapM_ (drawShapesFromPage (lookup (dumpSegmenter o) segmenters)) (concat csvFiles)
 
   where
-    drawShapesFromPage p = do
+    drawShapesFromPage Nothing _       = fail "Unknown segmenter"
+    drawShapesFromPage (Just shapesIn) p = do
       page <- loadPage p
       let pageName = takeBaseName (pg_sourceFile page)
-      unless (emptyPage page) $ mapM_ (drawAndSaveShape pageName) (shapes page)
+      unless (emptyPage page) $ mapM_ (drawAndSaveShape pageName) (shapesIn page)
 
     drawAndSaveShape pgName s = do
       let fileName = pgName ++ "_" ++ (sh_label s) ++ ".png"
@@ -53,38 +67,32 @@ dumpShapeFiles o = do
 
 data OverlayShapesOpts = OverlayShapesOpts {
     overlayCSVFilesPatterns   :: [String]
-  , overlayScorePagesPatterns :: [String] } deriving (Eq)
+  , overlayScorePagesPatterns :: [String]
+  , overlaySegmenter          :: String } deriving (Eq)
 
 overlayShapesOpts :: Parser Options
-overlayShapesOpts =
-  OverlayShapes
-  <$>
-  ( OverlayShapesOpts <$>
-    option (str >>= parseStringList)
-      (    short 'a'
-        <> metavar "\"FILE...\""
-        <> long "annotations"
-        <> help "Quoted list of annotations files or patterns." )
-    <*> option (str >>= parseStringList)
-      (    short 's'
-        <> metavar "\"FILE...\""
-        <> long "scores"
-        <> help "Quoted list of score image files or patterns." ) )
+overlayShapesOpts = OverlayShapes <$>
+  ( OverlayShapesOpts
+    <$> annotationsFilesOpt
+    <*> scoreFilesOpt
+    <*> segmenterOpt )
 
 overlayShapes :: OverlayShapesOpts -> IO ()
 overlayShapes o = do
   csvFiles   <- sequence $ map globExpHome (overlayCSVFilesPatterns o)
   scorePages <- sequence $ map globExpHome (overlayScorePagesPatterns o)
 
-  mapM_ drawShapesOntoPage $ zip (concat scorePages) (concat csvFiles)
+  mapM_ (drawShapesOntoPage (lookup (overlaySegmenter o) segmenters)) $
+    zip (concat scorePages) (concat csvFiles)
 
   where
-    drawShapesOntoPage (scorePage, annots) = do
+    drawShapesOntoPage Nothing _                         = fail "Unkown segmenter"
+    drawShapesOntoPage (Just shapesIn) (scorePage, annots) = do
       page <- loadPage annots
       let newFileName = extendBaseName scorePage "_withShapes"
       putStrLn $ "(" ++ scorePage ++ ", " ++ annots ++ ") -> " ++ newFileName
       unless (emptyPage page) $ do
-        img <- makePageImgWithShapes scorePage page
+        img <- makePageImgWithShapes shapesIn scorePage page
         G.saveJpegFile quality newFileName img
 
     quality = 95
@@ -92,32 +100,26 @@ overlayShapes o = do
 {---------------------------- ClusterShapes -------------------------------------}
 
 data ClusterShapesOpts = ClusterShapesOpts {
-    clusterCSVFilesPatterns :: [String] } deriving (Eq)
+    clusterCSVFilesPatterns :: [String]
+  , clusterSegmenter        :: String } deriving (Eq)
 
 clusterShapesOpts :: Parser Options
-clusterShapesOpts =
-  GenerateClusters
-  <$>
-  ClusterShapesOpts
-  <$> option (str >>= parseStringList)
-      (    short 'a'
-        <> metavar "\"FILE...\""
-        <> long "annotations"
-        <> help "Quoted list of annotations files or patterns." )
+clusterShapesOpts = GenerateClusters <$> (ClusterShapesOpts <$> annotationsFilesOpt <*> segmenterOpt)
 
 clusterShapes :: ClusterShapesOpts -> IO ()
 clusterShapes o = do
   csvFiles   <- sequence $ map globExpHome (clusterCSVFilesPatterns o)
 
-  allShapes <- mapM collectShapesFromPage (concat csvFiles)
+  allShapes <- mapM (collectShapesFromPage (lookup (clusterSegmenter o) segmenters)) (concat csvFiles)
   let clusters = cluster (concat allShapes)
 
   putStrLn $ Map.showTreeWith showCluster True True clusters
 
   where
-    collectShapesFromPage p = do
+    collectShapesFromPage Nothing _       = fail "Unkown segmenter"
+    collectShapesFromPage (Just shapesIn) p = do
       page <- loadPage p
-      return $ shapes page
+      return $ shapesIn page
 
     showCluster s ds = s ++ (foldl showDistance "" ds)
     showDistance t (_, s, d) = t ++ ", " ++ (sh_long_label s) ++ " (" ++ (printf "%0.4f" d) ++ ")"

@@ -3,7 +3,7 @@ module MuSAK.Annotations.Drawing where
 import           Control.Monad (unless)
 import qualified Graphics.GD as G
 import           MuSAK.Annotations.Geometry
-import           MuSAK.Annotations.Segmentation.Contiguity
+import           MuSAK.Annotations.Segmentation (Segmenter)
 import           MuSAK.Annotations.Types
 import           System.Directory (doesFileExist)
 
@@ -45,10 +45,10 @@ drawBorder img s Nothing = do
   let (left, top, right, bottom) = bounds s
   drawRect img (left, top, right, bottom)
 
-makePageImgWithShapes :: FilePath -> Page -> IO G.Image
-makePageImgWithShapes scorePage p = do
+makePageImgWithShapes :: Segmenter -> FilePath -> Page -> IO G.Image
+makePageImgWithShapes shapesIn scorePage p = do
   e <- doesFileExist scorePage
   unless e $ fail $ scorePage ++ " does not exist."
   img <- G.loadJpegFile scorePage
-  mapM_ (\s -> do { drawShape img s (Just (0,(-220))); drawBorder img s (Just (0,220)) }) (shapes p)
+  mapM_ (\s -> do { drawShape img s (Just (0,(-220))); drawBorder img s (Just (0,220)) }) (shapesIn p)
   return img

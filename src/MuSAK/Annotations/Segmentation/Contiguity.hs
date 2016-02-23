@@ -24,6 +24,7 @@ module MuSAK.Annotations.Segmentation.Contiguity (shapes) where
 import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.Types
 import Text.Printf (printf)
+import System.FilePath (takeBaseName)
 
 gap :: Mark -> Mark -> Int
 gap a b = distanceInt (end a) (start b)
@@ -48,6 +49,6 @@ shapes :: Page -> Options -> [Shape]
 shapes p opts =
   map (\(ms,i) ->
         Shape { sh_marks = ms
-              , sh_long_label = (pg_sourceFile p) ++ "_shape" ++ (printf "%02d" i)
+              , sh_long_label = (takeBaseName $ pg_sourceFile p) ++ "_shape" ++ (printf "%02d" i)
               , sh_label = "shape" ++ (printf "%02d" i) } )
   $ zip (groupBy (contiguous (contiguityThreshold opts)) (pg_marks p)) [(0 :: Int)..]

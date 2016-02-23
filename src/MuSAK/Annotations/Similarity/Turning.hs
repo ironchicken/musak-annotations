@@ -64,6 +64,9 @@ nullTurningShape = TurningShape nullShape [] 0.0
 
 type Distance = (Shape, Shape, Double)
 
+emptyDistance :: Distance -> Bool
+emptyDistance (s1, s2, _) = emptyShape s1 && emptyShape s2
+
 distance :: TurningShape -> TurningShape -> Distance
 distance (TurningShape sa a _) (TurningShape sb b _) = (sa, sb, sqrt $ abs $ (areaUnder a) ^ 2 - (areaUnder b) ^ 2)
   where

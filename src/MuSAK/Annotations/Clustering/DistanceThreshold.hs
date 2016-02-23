@@ -26,12 +26,18 @@ import qualified Data.Map as Map
 import           MuSAK.Annotations.Similarity.Turning
 import           MuSAK.Annotations.Types
 
-groupShapes :: [TurningShape] -> Double -> Map String [Distance] -> TurningShape -> Map String [Distance]
-groupShapes trs thresh m tRep@(TurningShape shape _ _) =
-  Map.insert (sh_long_label shape) (filter (\d -> (distVal d) < thresh) (map (distance tRep) trs)) m
+groupShapes :: [TurningShape] -> Double -> Int -> Map String [Distance] -> TurningShape -> Map String [Distance]
+groupShapes trs thresh minSize m tRep@(TurningShape shape _ _) =
+  if length cluster >= minSize
+  then Map.insert (sh_long_label shape) cluster m
+  else m
+  where
+    distanceTuples = map (distance tRep) trs
+    cluster        = filter (\d -> (distVal d) < thresh && not (emptyDistance d)) distanceTuples
 
 cluster :: [Shape] -> Map String [Distance]
-cluster ss = foldl (groupShapes tReps thresh) Map.empty tReps
+cluster ss = foldl (groupShapes tReps thresh minSize) Map.empty tReps
   where
-    tReps = map turningRep ss
-    thresh = 0.01
+    tReps   = map turningRep ss
+    thresh  = 0.01
+    minSize = 3

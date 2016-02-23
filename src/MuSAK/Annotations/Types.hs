@@ -150,7 +150,8 @@ data OverlayShapesOpts = OverlayShapesOpts {
 data ClusterShapesOpts = ClusterShapesOpts {
     clusterCSVFilesPatterns :: [String]
   , clusterSegmenter        :: String
-  , clusterContiguityThresh :: Int } deriving (Eq)
+  , clusterContiguityThresh :: Int
+  , clusterDrawClusters     :: Bool } deriving (Eq)
 
 contiguityThreshold :: Options -> Int
 contiguityThreshold (DumpShapes os)       = dumpContiguityThresh os

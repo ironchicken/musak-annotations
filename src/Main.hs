@@ -122,12 +122,18 @@ overlayShapes optns o = do
 
 {---------------------------- ClusterShapes -------------------------------------}
 
+drawClustersOpt :: Parser Bool
+drawClustersOpt = switch
+  (    long "draw-clusters"
+    <> help "Draw the clustered shapes as image files." )
+
 clusterShapesOpts :: Parser Options
 clusterShapesOpts = GenerateClusters <$>
   ( ClusterShapesOpts
     <$> annotationsFilesOpt
     <*> segmenterOpt
-    <*> contiguityThresholdOpt )
+    <*> contiguityThresholdOpt
+    <*> drawClustersOpt )
 
 clusterShapes :: Options -> ClusterShapesOpts -> IO ()
 clusterShapes optns o = do
@@ -136,7 +142,9 @@ clusterShapes optns o = do
   allShapes <- mapM (collectShapesFromPage (lookup (clusterSegmenter o) segmenters)) (concat csvFiles)
   let clusters = cluster (concat allShapes)
 
-  putStrLn $ Map.showTreeWith showCluster True True clusters
+  if clusterDrawClusters o
+    then drawClusters clusters
+    else putStrLn $ Map.showTreeWith showCluster True True clusters
 
   where
     collectShapesFromPage Nothing _       = fail "Unkown segmenter"

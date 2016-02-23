@@ -21,12 +21,16 @@
 
 module MuSAK.Annotations.Drawing where
 
-import           Control.Monad (unless)
+import           Control.Monad (foldM, unless)
+import           Data.List (sortBy)
+import           Data.Map (Map)
+import qualified Data.Map as Map
 import qualified Graphics.GD as G
 import           MuSAK.Annotations.Geometry
 import           MuSAK.Annotations.Segmentation (Segmenter)
 import           MuSAK.Annotations.Types
 import           System.Directory (doesFileExist)
+import           Text.Printf (printf)
 
 sizeOf :: Shape -> G.Size
 sizeOf s = (max 1 (right - left), max 1 (bottom - top))
@@ -73,3 +77,43 @@ makePageImgWithShapes shapesIn scorePage p opts = do
   img <- G.loadJpegFile scorePage
   mapM_ (\s -> do { drawShape img s (Just (0,(-220))); drawBorder img s (Just (0,220)) }) (shapesIn p opts)
   return img
+
+clusterImg :: [(Shape, Shape, Double)] -> IO G.Image
+clusterImg [] = G.newImage (1,1)
+clusterImg ds = do
+  img      <- G.newImage clusterImageSize
+  drawShapeWithDist (img, 0) (nullShape, (first . head) ds, 0.0)
+  (img, _) <- foldM drawShapeWithDist (img, max minWidth (fst $ sizeOf $ (first . head) ds)) ds
+  return img
+
+  where
+    drawShapeWithDist (img, xOffs) (_, shape, distance) = do
+      let offs   = Just (x - xOffs, y)
+          (x, y) = (offset shape)
+      drawShape img shape offs
+      drawLabel img shape distance xOffs
+      return (img, xOffs + max minWidth (fst $ sizeOf shape))
+
+    drawLabel img shape distance offs = do
+      _ <- G.drawString font 9 0 (offs + 5, yOffs) (sh_long_label shape) labelColour img
+      G.drawString font 9 0 (offs + 5, yOffs + yOffs) (printf "%0.4f" (distance :: Double)) labelColour img
+      where
+        -- FIXME Make this a command line option
+        font        = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+        labelColour = (G.rgb 0 255 0)
+        yOffs       = 15
+
+    shapes           = (first . head) ds : map second ds
+    clusterImageSize = (sum $ map (\dim -> max minWidth (fst dim)) imageSizes, maximum $ (map snd) imageSizes)
+    imageSizes       = map sizeOf shapes
+    minWidth         = 130
+
+    first a  = s where (s, _, _) = a
+    second a = s where (_, s, _) = a
+
+drawClusters :: Map String [(Shape, Shape, Double)] -> IO ()
+drawClusters m = sequence_ $ Map.mapWithKey saveClusterImg m
+  where
+    saveClusterImg k c = do
+      img <- clusterImg $ sortBy (\(_,_,a) (_,_,b) -> compare a b) c
+      G.savePngFile (k ++ "_cluster.png") img

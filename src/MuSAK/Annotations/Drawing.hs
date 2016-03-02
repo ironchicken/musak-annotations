@@ -26,16 +26,15 @@ import           Data.List (sortBy)
 import           Data.Map (Map)
 import qualified Data.Map as Map
 import qualified Graphics.GD as G
-import           MuSAK.Annotations.Geometry
+import           MuSAK.Annotations.Geometry hiding (sizeOf)
+import qualified MuSAK.Annotations.Geometry as Geom (sizeOf)
 import           MuSAK.Annotations.Segmentation (Segmenter)
 import           MuSAK.Annotations.Types
 import           System.Directory (doesFileExist)
 import           Text.Printf (printf)
 
 sizeOf :: Shape -> G.Size
-sizeOf s = (max 1 (right - left), max 1 (bottom - top))
-  where
-    (left, top, right, bottom) = bounds s
+sizeOf = Geom.sizeOf
 
 lineColour :: G.Color
 lineColour = (G.rgb 0 0 255)

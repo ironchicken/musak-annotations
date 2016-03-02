@@ -34,6 +34,11 @@ bounds s = (left, top, right, bottom)
     top    = minimum ys
     bottom = maximum ys
 
+sizeOf :: Shape -> (Int, Int)
+sizeOf s = (max 1 (right - left), max 1 (bottom - top))
+  where
+    (left, top, right, bottom) = bounds s
+
 offset :: Shape -> Point
 offset s = (left, top)
   where

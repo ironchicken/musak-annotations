@@ -30,12 +30,6 @@ import           Graphics.Rasterific.Texture (uniformTexture)
 import           MuSAK.Annotations.Geometry
 import           MuSAK.Annotations.Types
 
--- FIXME This is taken from Drawing
-sizeOf :: Shape -> (Int, Int)
-sizeOf s = (max 1 (right - left), max 1 (bottom - top))
-  where
-    (left, top, right, bottom) = bounds s
-
 pixels :: Shape -> DV.Vector (PixelBaseComponent Word8)
 pixels s = imageData $ R.renderDrawing w h white . R.withTexture (uniformTexture drawColor) $ drawShape s (Just (offset s))
   where

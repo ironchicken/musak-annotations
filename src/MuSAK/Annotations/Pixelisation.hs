@@ -19,28 +19,50 @@
 -- You should have received a copy of the GNU General Public License
 -- along with musak-annotations. If not, see <http://www.gnu.org/licenses/>.
 
-module MuSAK.Annotations.Pixelisation (pixels) where
+module MuSAK.Annotations.Pixelisation ( cvImage
+                                      , pixels ) where
 
-import           Codec.Picture (PixelRGBA8(..))
-import           Codec.Picture.Types (Image(imageData), PixelBaseComponent)
+import           Codec.Picture (Pixel8)
+import           Codec.Picture.Types (Image, Image(imageData), PixelBaseComponent, pixelAt)
+import qualified CV.Image as CV
 import qualified Data.Vector.Storable as DV
 import           Data.Word (Word8(..))
 import qualified Graphics.Rasterific as R
 import           Graphics.Rasterific.Texture (uniformTexture)
 import           MuSAK.Annotations.Geometry
 import           MuSAK.Annotations.Types
+import           System.IO.Unsafe (unsafePerformIO)
 
 pixels :: Shape -> DV.Vector (PixelBaseComponent Word8)
-pixels s = imageData $ R.renderDrawing w h white . R.withTexture (uniformTexture drawColor) $ drawShape s (Just (offset s))
+pixels s = imageData $ render (w, h) (drawShape s (Just (offset s)))
   where
     (w, h) = sizeOf s
-    white = PixelRGBA8 255 255 255 255
-    drawColor = PixelRGBA8 0 0 0 255
+
+cvImage :: Shape -> (CV.Image CV.GrayScale CV.D8)
+cvImage = unsafePerformIO . cvImageIO
+
+cvImageIO :: Shape -> IO (CV.Image CV.GrayScale CV.D8)
+cvImageIO s = cvImageMutableIO s >>= CV.fromMutable
+
+cvImageMutableIO :: Shape -> IO (CV.MutableImage CV.GrayScale CV.D8)
+cvImageMutableIO s = do
+  let (w, h)    = sizeOf s
+      jpImg     = render (w, h) (drawShape s (Just (offset s)))
+      allPoints = [ (x, y) | y <- [0..(h - 1)], x <- [0..(w - 1)] ]
+  img <- CV.create (sizeOf s)
+  mapM_ (\(x, y) -> CV.setPixel (x, y) (pixelAt jpImg x y) img) allPoints
+  return img
 
 drawShape :: Shape -> Maybe Point -> R.Drawing px ()
 drawShape s offs =
   R.stroke 4 R.JoinRound (R.CapRound, R.CapRound) $
     R.polyline $ concat $ map (markToVec offs) (sh_marks s)
+
+render :: (Int, Int) -> R.Drawing Pixel8 () -> Image (PixelBaseComponent Word8)
+render (w, h) d = R.renderDrawing w h white . R.withTexture (uniformTexture drawColor) $ d
+  where
+    white     = 255 :: Pixel8
+    drawColor = 0 :: Pixel8
 
 pointToVec :: Point -> R.Point
 pointToVec (x, y) = R.V2 (fromIntegral x) (fromIntegral y)

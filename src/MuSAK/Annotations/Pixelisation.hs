@@ -19,12 +19,10 @@
 -- You should have received a copy of the GNU General Public License
 -- along with musak-annotations. If not, see <http://www.gnu.org/licenses/>.
 
-module MuSAK.Annotations.Pixelisation ( cvImage
-                                      , pixels ) where
+module MuSAK.Annotations.Pixelisation ( pixels ) where
 
 import           Codec.Picture (Pixel8)
 import           Codec.Picture.Types (Image, Image(imageData), PixelBaseComponent, pixelAt)
-import qualified CV.Image as CV
 import qualified Data.Vector.Storable as DV
 import           Data.Word (Word8(..))
 import qualified Graphics.Rasterific as R
@@ -37,21 +35,6 @@ pixels :: Shape -> DV.Vector (PixelBaseComponent Word8)
 pixels s = imageData $ render (w, h) (drawShape s (Just (offset s)))
   where
     (w, h) = sizeOf s
-
-cvImage :: Shape -> (CV.Image CV.GrayScale CV.D8)
-cvImage = unsafePerformIO . cvImageIO
-
-cvImageIO :: Shape -> IO (CV.Image CV.GrayScale CV.D8)
-cvImageIO s = cvImageMutableIO s >>= CV.fromMutable
-
-cvImageMutableIO :: Shape -> IO (CV.MutableImage CV.GrayScale CV.D8)
-cvImageMutableIO s = do
-  let (w, h)    = sizeOf s
-      jpImg     = render (w, h) (drawShape s (Just (offset s)))
-      allPoints = [ (x, y) | y <- [0..(h - 1)], x <- [0..(w - 1)] ]
-  img <- CV.create (sizeOf s)
-  mapM_ (\(x, y) -> CV.setPixel (x, y) (pixelAt jpImg x y) img) allPoints
-  return img
 
 drawShape :: Shape -> Maybe Point -> R.Drawing px ()
 drawShape s offs =

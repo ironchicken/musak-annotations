@@ -5,23 +5,26 @@ homepage: http://www.transforming-musicology.org/tools/metaMuSAK/
 author: Richard Lewis
 license: GPL
 build-type: Simple
-cabal-version: >= 1.9.2
+cabal-version: >= 1.20
 
 library
   build-depends: base, containers, cassava, time, bytestring, vector, gd, filepath, directory, Glob, Rasterific, JuicyPixels
-  exposed-modules: MuSAK.Annotations, MuSAK.Annotations.Types, MuSAK.Annotations.Graph, MuSAK.Annotations.Geometry, MuSAK.Annotations.Segmentation.Contiguity, MuSAK.Annotations.Drawing, MuSAK.Annotations.IOUtils, MuSAK.Annotations.Similarity.Turning, MuSAK.Annotations.Clustering.KMeans, MuSAK.Annotations.Pixelisation
+  exposed-modules: MuSAK.Annotations, MuSAK.Annotations.Types, MuSAK.Annotations.Graph, MuSAK.Annotations.Geometry, MuSAK.Annotations.Segmentation, MuSAK.Annotations.Segmentation.Contiguity, MuSAK.Annotations.Drawing, MuSAK.Annotations.IOUtils, MuSAK.Annotations.Similarity.Turning, MuSAK.Annotations.Clustering.DistanceThreshold, MuSAK.Annotations.Clustering.KMeans, MuSAK.Annotations.Pixelisation, MuSAK.Annotations.Similarity.SURF
   hs-source-dirs: src
   ghc-options: -Wall
+  default-language: Haskell2010
 
 executable musak-annotations
-  build-depends: base, containers, cassava, time, bytestring, musak-annotations, vector, gd, filepath, Glob, directory, optparse-applicative
+  build-depends: base, musak-annotations, containers, cassava, time, bytestring, vector, gd, filepath, Glob, directory, optparse-applicative
   hs-source-dirs: src
   main-is: Main.hs
   ghc-options: -Wall
+  default-language: Haskell2010
 
 test-suite musak-tests
   type: detailed-0.9
   test-module: MuSAKTests
-  build-depends: base, Cabal >= 1.9.2, containers, cassava, time, bytestring, vector, directory, filepath, Glob
+  build-depends: base, Cabal >= 1.20, containers, cassava, time, bytestring, vector, directory, filepath, Glob, Rasterific, JuicyPixels
   hs-source-dirs: src, tests
-  other-modules: MuSAK.Annotations.Types, MuSAK.Annotations.Geometry, MuSAK.Annotations.Similarity.Turning, MuSAK.Annotations.IOUtils, MuSAK.Annotations.Segmentation.Contiguity
+  other-modules: MuSAK.Annotations.Types, MuSAK.Annotations.Geometry, MuSAK.Annotations.Similarity.Turning, MuSAK.Annotations.IOUtils, MuSAK.Annotations.Segmentation.Contiguity, MuSAK.Annotations.Pixelisation, MuSAK.Annotations.Similarity.SURF
+  default-language: Haskell2010

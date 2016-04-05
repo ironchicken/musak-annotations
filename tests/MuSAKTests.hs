@@ -23,15 +23,19 @@ module MuSAKTests (tests) where
 
 import Distribution.TestSuite
 
-import Data.ByteString.Lazy as LB hiding (head, filter, putStrLn)
-import Data.ByteString.Lazy.Char8 as LBC hiding (head, filter, putStrLn)
-import Data.ByteString.Char8 as BC hiding (head, filter, putStrLn)
+import Codec.Picture.Types (PixelBaseComponent)
+import Data.ByteString.Lazy as LB hiding (map, all, zip, head, filter, putStrLn)
+import Data.ByteString.Lazy.Char8 as LBC hiding (map, all, zip, head, filter, putStrLn)
+import Data.ByteString.Char8 as BC hiding (map, all, zip, head, filter, putStrLn)
 import Data.Csv
 import Data.Time.LocalTime
-import Data.Vector as DV hiding ((++), head, filter, putStrLn)
+import qualified Data.Vector as DV hiding ((++), map, all, zip, head, filter, putStrLn)
+import qualified Data.Vector.Storable as DVS
+import Data.Word (Word8(..))
 import MuSAK.Annotations.Geometry
 import MuSAK.Annotations.IOUtils (loadPage)
 import MuSAK.Annotations.Segmentation.Contiguity (shapes)
+import MuSAK.Annotations.Similarity.SURF as SS
 import MuSAK.Annotations.Similarity.Turning as ST
 import MuSAK.Annotations.Types
 import System.Directory (doesFileExist)
@@ -421,6 +425,44 @@ testMuSAKShapesSimilar = TestInstance {
   , setOption = \_ _ -> Right testMuSAKShapesEq
   }
 
+runIntegralImageTest :: IO Progress
+runIntegralImageTest =
+  let
+    intImgs = map (uncurry SS.integralImage) srcImgs
+    srcImgs = [ ((3, 3),
+                 DVS.fromList ([ 1, 1, 1
+                               , 1, 1, 1
+                               , 1, 1, 1 ] :: [PixelBaseComponent Word8]))
+              , ((2, 2),
+                 DVS.fromList ([ 1, 5
+                               , 2, 4 ] :: [PixelBaseComponent Word8]))
+              , ((4, 4),
+                 DVS.fromList ([ 4, 1, 2, 2
+                               , 0, 4, 1, 3
+                               , 3, 1, 0, 4
+                               , 2, 1, 3, 2 ] :: [PixelBaseComponent Word8])) ]
+    expIIs  = [ DVS.fromList ([ 1, 2, 3
+                              , 2, 4, 6
+                              , 3, 8, 12 ] :: [PixelBaseComponent Word8])
+              , DVS.fromList ([ 1, 6
+                              , 3, 12 ] :: [PixelBaseComponent Word8])
+              , DVS.fromList ([ 4,  5,  7,  9
+                              , 4,  9, 12, 17
+                              , 7, 13, 16, 25
+                              , 9, 16, 22, 33 ] :: [PixelBaseComponent Word8]) ]
+    in return $ Finished $ if intImgs == expIIs
+                           then Pass
+                           else Fail $ "Computed integral image does not match expected integral image: expected: " ++ (show expIIs) ++ "; computed: " ++ (show intImgs)
+
+testIntegralImage :: TestInstance
+testIntegralImage = TestInstance {
+    run = runIntegralImageTest
+  , name = "Integral image"
+  , tags = []
+  , options = []
+  , setOption = \_ _ -> Right testIntegralImage
+  }
+
 tests :: IO [Test]
 tests = return [ Test testMarkParse
                , Test testBounds
@@ -433,4 +475,5 @@ tests = return [ Test testMarkParse
                , Test testTurningDistanceRectSq
                , Test testMuSAKShapesEq
                , Test testMuSAKShapesSimilar
+               , Test testIntegralImage
                ]

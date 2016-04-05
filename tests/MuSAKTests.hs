@@ -443,7 +443,7 @@ runIntegralImageTest =
                                , 2, 1, 3, 2 ] :: [PixelBaseComponent Word8])) ]
     expIIs  = [ DVS.fromList ([ 1, 2, 3
                               , 2, 4, 6
-                              , 3, 8, 12 ] :: [PixelBaseComponent Word8])
+                              , 3, 6, 9 ] :: [PixelBaseComponent Word8])
               , DVS.fromList ([ 1, 6
                               , 3, 12 ] :: [PixelBaseComponent Word8])
               , DVS.fromList ([ 4,  5,  7,  9

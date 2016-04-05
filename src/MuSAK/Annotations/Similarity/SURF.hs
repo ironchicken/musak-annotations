@@ -22,18 +22,21 @@
 module MuSAK.Annotations.Similarity.SURF where
 
 import           Codec.Picture.Types (PixelBaseComponent)
-import qualified Data.Vector.Storable as DV
+import           Control.Monad.ST (runST)
+import qualified Data.Vector.Storable as DVS
+import qualified Data.Vector.Storable.Mutable as DVM
 import           Data.Word (Word8(..))
 import           MuSAK.Annotations.Pixelisation (pixels)
 import           MuSAK.Annotations.Types
 
-integralImage :: (Int, Int) -> DV.Vector (PixelBaseComponent Word8) -> DV.Vector (PixelBaseComponent Word8)
-integralImage (w, h) img = DV.generate (w * h) (\idx -> rowSum idx + colSum idx)
+integralImage :: (Int, Int) -> DVS.Vector (PixelBaseComponent Word8) -> DVS.Vector (PixelBaseComponent Word8)
+integralImage (w, h) img = DVS.create $ do
+  intImg <- DVM.new (w * h)
+  mapM_ (writeElem intImg) [0..(w * h) - 1]
+  return intImg
   where
-    rowSum i    = DV.foldr (+) 0 $ DV.slice (y * w) (x + 1) img
-      where (x, y) = coordsIdx i
-    colSum i    = foldr (+) 0 $ map (\i -> (DV.!) img i) (colIdxs i)
-      where (x, y) = coordsIdx i
-    colIdxs i   = [n * w + x | n <- [0..(y - 1)] ]
-      where (x, y) = coordsIdx i
-    coordsIdx i = ( i `mod` w , i `div` h )
+    writeElem ii i | y == 0    = DVS.mapM_ (\n -> DVM.write ii i n) rowSum
+                   | otherwise = DVS.mapM_ (\n -> do { abv <- DVM.read ii (i - w);
+                                                       DVM.write ii i (n + abv) }) rowSum
+      where rowSum = DVS.scanl1 (+) $ DVS.slice (y * w) (x + 1) img
+            (x, y) = ( i `mod` w , i `div` h )

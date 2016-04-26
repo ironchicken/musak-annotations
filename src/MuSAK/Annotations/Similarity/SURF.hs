@@ -21,15 +21,13 @@
 
 module MuSAK.Annotations.Similarity.SURF where
 
-import           Codec.Picture.Types (PixelBaseComponent)
-import           Control.Monad.ST (runST)
 import qualified Data.Vector.Storable as DVS
 import qualified Data.Vector.Storable.Mutable as DVM
 import           Data.Word (Word8(..))
 import           MuSAK.Annotations.Pixelisation (pixels)
 import           MuSAK.Annotations.Types
 
-integralImage :: (Int, Int) -> DVS.Vector (PixelBaseComponent Word8) -> DVS.Vector (PixelBaseComponent Word8)
+integralImage :: (Num px, DVM.Storable px) => (Int, Int) -> DVS.Vector px -> DVS.Vector px
 integralImage (w, h) img = DVS.create $ do
   intImg <- DVM.new (w * h)
   mapM_ (writeElem intImg) [0..(w * h) - 1]
